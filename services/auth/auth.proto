@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package api;
+option go_package = "api";
+
+message UsernameAuthRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message EmailAuthRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message ChangePasswordRequest {
+  string token = 1;
+  string old_password = 3;
+  string new_password = 4;
+}
+
+message ResetPasswordRequest {
+  string email = 1;
+  string verification_code = 2;
+}
+
+message AuthToken {
+  string token = 1;
+}
+
+message ServerAuthDataResponse {
+  uint32 uid = 1;
+  string username = 2;
+}
+
+service AuthService {
+  // user auth
+  rpc UsernameAuth(UsernameAuthRequest) returns (AuthToken); // Auth with username
+  rpc EmailAuth(EmailAuthRequest) returns (AuthToken); // Auth with email
+
+  // tool auth
+  rpc Register(RegisterRequest) returns (AuthToken); // Register a new account
+  rpc ChangePassword(ChangePasswordRequest) returns (AuthToken); // Change password
+  rpc ResetPassword(ResetPasswordRequest) returns (AuthToken); // Reset password
+
+  // server auth
+  rpc GetServerAuthData(AuthToken) returns (ServerAuthDataResponse); // Get server auth data
+}

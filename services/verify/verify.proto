@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package api;
+option go_package = "api";
+
+message ApplyEmailVerifyRequest {
+    string email = 1;
+}
+
+message ApplyEmailVerifyResponse {
+    string email = 1;
+    bool ok = 2;
+}
+
+message VerifyEmailRequest {
+    string email = 1;
+    string code = 2;
+}
+
+message VerifyEmailResponse {
+    string email = 1;
+    bool ok = 2;
+}
+
+service VerifyService {
+    rpc ApplyEmailVerify(ApplyEmailVerifyRequest) returns (ApplyEmailVerifyResponse);
+    rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+}

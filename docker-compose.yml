@@ -1,0 +1,165 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: anonymous_box_saas
+      POSTGRES_PASSWORD: anonymous_box_saas
+      POSTGRES_DB: anonymous_box_saas
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    networks:
+      - app-network
+    ports:
+      - "16686:16686"
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - app-network
+    ports:
+      - "6379:6379"
+
+  mq:
+    image: rabbitmq:3.9-management-alpine
+    networks:
+      - app-network
+    ports:
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: anonymous_box_saas
+      RABBITMQ_DEFAULT_PASS: anonymous_box_saas
+
+  migrator:
+    init: true
+    build:
+      context: .
+      dockerfile: ./Migrator.Dockerfile
+    networks:
+      - app-network
+    environment:
+      - TZ=Asia/Shanghai
+      - LOG_LEVEL=info
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=anonymous_box_saas
+      - DB_PASSWORD=anonymous_box_saas
+      - DB_NAME=anonymous_box_saas
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MQ_HOST=mq
+      - MQ_PORT=5672
+      - MQ_USER=anonymous_box_saas
+      - MQ_PASSWORD=anonymous_box_saas
+      - TRACE_ENDPOINT=http://jaeger:14268/api/traces
+    restart: on-failure
+
+  verify-service:
+    build:
+      context: .
+      dockerfile: ./Service.Dockerfile
+      args:
+        - SERVICE_NAME=verify
+    networks:
+      - app-network
+    environment:
+      - TZ=Asia/Shanghai
+      - LOG_LEVEL=info
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=anonymous_box_saas
+      - DB_PASSWORD=anonymous_box_saas
+      - DB_NAME=anonymous_box_saas
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MQ_HOST=mq
+      - MQ_PORT=5672
+      - MQ_USER=anonymous_box_saas
+      - MQ_PASSWORD=anonymous_box_saas
+      - TRACE_ENDPOINT=http://jaeger:14268/api/traces
+
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./Service.Dockerfile
+      args:
+        - SERVICE_NAME=auth
+    networks:
+      - app-network
+    environment:
+      - TZ=Asia/Shanghai
+      - LOG_LEVEL=info
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=anonymous_box_saas
+      - DB_PASSWORD=anonymous_box_saas
+      - DB_NAME=anonymous_box_saas
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MQ_HOST=mq
+      - MQ_PORT=5672
+      - MQ_USER=anonymous_box_saas
+      - MQ_PASSWORD=anonymous_box_saas
+      - TRACE_ENDPOINT=http://jaeger:14268/api/traces
+
+  email-service:
+    build:
+      context: .
+      dockerfile: ./Service.Dockerfile
+      args:
+        - SERVICE_NAME=email
+        - SERVICE_PATH=services/email/cmd/server/main.go
+    networks:
+      - app-network
+    environment:
+      - TZ=Asia/Shanghai
+      - LOG_LEVEL=info
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=anonymous_box_saas
+      - DB_PASSWORD=anonymous_box_saas
+      - DB_NAME=anonymous_box_saas
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MQ_HOST=mq
+      - MQ_PORT=5672
+      - MQ_USER=anonymous_box_saas
+      - MQ_PASSWORD=anonymous_box_saas
+      - TRACE_ENDPOINT=http://jaeger:14268/api/traces
+
+  email-consumer:
+    build:
+      context: .
+      dockerfile: ./Service.Dockerfile
+      args:
+        - SERVICE_NAME=email
+        - SERVICE_PATH=services/email/cmd/consumer/*.go
+    networks:
+      - app-network
+    environment:
+      - TZ=Asia/Shanghai
+      - LOG_LEVEL=info
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=anonymous_box_saas
+      - DB_PASSWORD=anonymous_box_saas
+      - DB_NAME=anonymous_box_saas
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MQ_HOST=mq
+      - MQ_PORT=5672
+      - MQ_USER=anonymous_box_saas
+      - MQ_PASSWORD=anonymous_box_saas
+      - TRACE_ENDPOINT=http://jaeger:14268/api/traces
+
+networks:
+  app-network:
