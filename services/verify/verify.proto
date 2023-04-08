@@ -18,8 +18,7 @@ message VerifyEmailRequest {
 }
 
 message VerifyEmailResponse {
-    string email = 1;
-    bool ok = 2;
+    bool ok = 1;
 }
 
 service VerifyService {

@@ -41,20 +41,17 @@ func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *api.VerifyEmai
 	v, exist := s.Cache.Get(ctx, fmt.Sprint("verify_service::email_verify_code::", req.GetEmail()))
 	if !exist {
 		return &api.VerifyEmailResponse{
-			Email: req.GetEmail(),
-			Ok:    false,
+			Ok: false,
 		}, ErrVerifyCodeNotFound
 	}
 
 	if v != req.GetCode() {
 		return &api.VerifyEmailResponse{
-			Email: req.GetEmail(),
-			Ok:    false,
+			Ok: false,
 		}, ErrVerifyCodeNotFound
 	}
 
 	return &api.VerifyEmailResponse{
-		Email: req.GetEmail(),
-		Ok:    true,
+		Ok: true,
 	}, nil
 }
