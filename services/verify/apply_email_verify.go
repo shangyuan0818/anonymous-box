@@ -51,7 +51,7 @@ func (s *VerifyServiceImpl) generateVerifyCode(ctx context.Context, email string
 	code := util.RandString(6)
 	code = strings.ToUpper(code)
 
-	if err := s.Cache.Set(ctx, fmt.Sprintf("verify_service::email_verify_code:%s", email), code, 60*5); err != nil {
+	if err := s.Cache.Set(ctx, fmt.Sprint("verify_service::email_verify_code::", email), code, 60*5); err != nil {
 		return "", err
 	}
 

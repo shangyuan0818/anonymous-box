@@ -2,6 +2,8 @@ package verify
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
@@ -27,8 +29,32 @@ func NewVerifyServiceImpl(impl VerifyServiceImpl) api.VerifyService {
 	return &impl
 }
 
+var (
+	ErrVerifyCodeNotFound = errors.New("verify code not found")
+)
+
 // VerifyEmail implements the VerifyServiceImpl interface.
 func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *api.VerifyEmailRequest) (resp *api.VerifyEmailResponse, err error) {
-	// TODO: Your code here...
-	return
+	ctx, span := tracer.Start(ctx, "verify-email")
+	defer span.End()
+
+	v, exist := s.Cache.Get(ctx, fmt.Sprint("verify_service::email_verify_code::", req.GetEmail()))
+	if !exist {
+		return &api.VerifyEmailResponse{
+			Email: req.GetEmail(),
+			Ok:    false,
+		}, ErrVerifyCodeNotFound
+	}
+
+	if v != req.GetCode() {
+		return &api.VerifyEmailResponse{
+			Email: req.GetEmail(),
+			Ok:    false,
+		}, ErrVerifyCodeNotFound
+	}
+
+	return &api.VerifyEmailResponse{
+		Email: req.GetEmail(),
+		Ok:    true,
+	}, nil
 }
