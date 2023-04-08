@@ -119,7 +119,7 @@ func (s *AuthServiceImpl) Register(ctx context.Context, req *api.RegisterRequest
 	}); err != nil {
 		logger.WithError(err).Error("verify email failed")
 		return nil, err
-	} else if !resp.GetOk() || resp.GetEmail() != req.GetEmail() {
+	} else if !resp.GetOk() {
 		logger.WithError(ErrInvalidVerificationCode).Error("verify email failed")
 		return nil, ErrInvalidVerificationCode
 	}
@@ -231,7 +231,7 @@ func (s *AuthServiceImpl) ResetPassword(ctx context.Context, req *api.ResetPassw
 	}); err != nil {
 		logger.WithError(err).Error("verify email failed")
 		return nil, err
-	} else if !resp.GetOk() || resp.GetEmail() != req.GetEmail() {
+	} else if !resp.GetOk() {
 		logger.WithError(ErrInvalidVerificationCode).Error("verify email failed")
 		return nil, ErrInvalidVerificationCode
 	}

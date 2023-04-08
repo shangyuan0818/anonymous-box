@@ -2,17 +2,18 @@ package main
 
 import (
 	"context"
-	"github.com/star-horizon/anonymous-box-saas/services/email"
 
+	"github.com/cloudwego/kitex/pkg/registry"
+	"github.com/cloudwego/kitex/server"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
+	"github.com/star-horizon/anonymous-box-saas/internal"
 	"github.com/star-horizon/anonymous-box-saas/internal/database"
-	"github.com/star-horizon/anonymous-box-saas/internal/logger"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
-	"github.com/star-horizon/anonymous-box-saas/internal/trace"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
+	"github.com/star-horizon/anonymous-box-saas/services/email"
 	"github.com/star-horizon/anonymous-box-saas/services/verify"
 	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api"
 	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api/verifyservice"
@@ -35,8 +36,7 @@ func init() {
 			fx.Annotate(ctx, fx.As(new(context.Context))),
 			serviceName,
 		),
-		logger.Module(),
-		trace.Module(),
+		internal.InfraModule(),
 		redis.Module(),
 		fx.Provide(cache.NewRedisDriver),
 		database.Module(),
@@ -46,11 +46,13 @@ func init() {
 	)
 }
 
-func run(ctx context.Context, svc api.VerifyService, lc fx.Lifecycle) {
+func run(ctx context.Context, svc api.VerifyService, lc fx.Lifecycle, r registry.Registry) {
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 
-	svr := verifyservice.NewServer(svc)
+	svr := verifyservice.NewServer(svc, server.WithRegistry(r), server.WithRegistryInfo(&registry.Info{
+		ServiceName: serviceName,
+	}))
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {

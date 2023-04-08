@@ -8,11 +8,10 @@ import (
 	"go.uber.org/fx"
 	"gopkg.in/mail.v2"
 
+	"github.com/star-horizon/anonymous-box-saas/internal"
 	"github.com/star-horizon/anonymous-box-saas/internal/database"
-	"github.com/star-horizon/anonymous-box-saas/internal/logger"
 	"github.com/star-horizon/anonymous-box-saas/internal/mq"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
-	"github.com/star-horizon/anonymous-box-saas/internal/trace"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 )
 
@@ -37,8 +36,7 @@ func init() {
 			fx.Annotate(ctx, fx.As(new(context.Context))),
 			serviceName,
 		),
-		logger.Module(),
-		trace.Module(),
+		internal.InfraModule(),
 		redis.Module(),
 		fx.Provide(cache.NewRedisDriver),
 		database.Module(),

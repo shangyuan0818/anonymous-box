@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 
+	"github.com/cloudwego/kitex/pkg/registry"
+	"github.com/cloudwego/kitex/server"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
+	"github.com/star-horizon/anonymous-box-saas/internal"
 	"github.com/star-horizon/anonymous-box-saas/internal/database"
-	"github.com/star-horizon/anonymous-box-saas/internal/logger"
 	"github.com/star-horizon/anonymous-box-saas/internal/mq"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
-	"github.com/star-horizon/anonymous-box-saas/internal/trace"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 	"github.com/star-horizon/anonymous-box-saas/services/email"
 	"github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api"
@@ -35,8 +36,7 @@ func init() {
 			fx.Annotate(ctx, fx.As(new(context.Context))),
 			serviceName,
 		),
-		logger.Module(),
-		trace.Module(),
+		internal.InfraModule(),
 		redis.Module(),
 		fx.Provide(cache.NewRedisDriver),
 		database.Module(),
@@ -48,11 +48,13 @@ func init() {
 	app = fx.New(opts...)
 }
 
-func run(ctx context.Context, lc fx.Lifecycle, svc api.MailService) {
+func run(ctx context.Context, lc fx.Lifecycle, svc api.MailService, r registry.Registry) {
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 
-	svr := mailservice.NewServer(svc)
+	svr := mailservice.NewServer(svc, server.WithRegistry(r), server.WithRegistryInfo(&registry.Info{
+		ServiceName: serviceName,
+	}))
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
