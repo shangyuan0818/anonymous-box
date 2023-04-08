@@ -13,9 +13,9 @@ import (
 	"go.uber.org/fx"
 	"gopkg.in/mail.v2"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/dal"
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/model"
-	"github.com/ahdark-services/anonymous-box-saas/services/email/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/dal"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/model"
+	"github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api"
 )
 
 var tracer = otel.Tracer("email-service")

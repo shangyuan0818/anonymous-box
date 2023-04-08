@@ -2,8 +2,8 @@
 package mailservice
 
 import (
-	api "github.com/ahdark-services/anonymous-box-saas/services/email/kitex_gen/api"
 	server "github.com/cloudwego/kitex/server"
+	api "github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api"
 )
 
 // NewServer creates a server.Server with the given handler and options.

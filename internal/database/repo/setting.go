@@ -8,9 +8,9 @@ import (
 	"github.com/samber/lo"
 	"go.uber.org/fx"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/dal"
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/model"
-	"github.com/ahdark-services/anonymous-box-saas/pkg/cache"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/dal"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/model"
+	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 )
 
 type SettingRepo interface {

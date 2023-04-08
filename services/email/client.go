@@ -6,7 +6,7 @@ import (
 	"github.com/cloudwego/kitex/client"
 	dns "github.com/kitex-contrib/resolver-dns"
 
-	"github.com/ahdark-services/anonymous-box-saas/services/email/kitex_gen/api/mailservice"
+	"github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api/mailservice"
 )
 
 // NewMailServiceClient creates a new MailServiceClient.

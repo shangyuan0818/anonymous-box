@@ -7,14 +7,14 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database"
-	"github.com/ahdark-services/anonymous-box-saas/internal/logger"
-	"github.com/ahdark-services/anonymous-box-saas/internal/redis"
-	"github.com/ahdark-services/anonymous-box-saas/internal/trace"
-	"github.com/ahdark-services/anonymous-box-saas/pkg/cache"
-	"github.com/ahdark-services/anonymous-box-saas/services/auth"
-	"github.com/ahdark-services/anonymous-box-saas/services/auth/kitex_gen/api"
-	"github.com/ahdark-services/anonymous-box-saas/services/auth/kitex_gen/api/authservice"
+	"github.com/star-horizon/anonymous-box-saas/internal/database"
+	"github.com/star-horizon/anonymous-box-saas/internal/logger"
+	"github.com/star-horizon/anonymous-box-saas/internal/redis"
+	"github.com/star-horizon/anonymous-box-saas/internal/trace"
+	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
+	"github.com/star-horizon/anonymous-box-saas/services/auth"
+	"github.com/star-horizon/anonymous-box-saas/services/auth/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/services/auth/kitex_gen/api/authservice"
 )
 
 const serviceName = "auth-service"

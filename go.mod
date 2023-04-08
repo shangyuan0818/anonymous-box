@@ -1,4 +1,4 @@
-module github.com/ahdark-services/anonymous-box-saas
+module github.com/star-horizon/anonymous-box-saas
 
 go 1.20
 

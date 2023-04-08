@@ -6,7 +6,7 @@ import (
 	"github.com/cloudwego/kitex/client"
 	dns "github.com/kitex-contrib/resolver-dns"
 
-	"github.com/ahdark-services/anonymous-box-saas/services/verify/kitex_gen/api/verifyservice"
+	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api/verifyservice"
 )
 
 // NewVerifyServiceClient returns a new instance of the VerifyClient

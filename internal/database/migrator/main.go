@@ -9,8 +9,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/dal"
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/model"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/dal"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/model"
 )
 
 type env struct {

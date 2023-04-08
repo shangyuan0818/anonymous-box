@@ -3,7 +3,7 @@ package database
 import (
 	"go.uber.org/fx"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/repo"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/repo"
 )
 
 func Module() fx.Option {

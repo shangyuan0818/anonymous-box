@@ -4,9 +4,9 @@ package mailservice
 
 import (
 	"context"
-	api "github.com/ahdark-services/anonymous-box-saas/services/email/kitex_gen/api"
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
+	api "github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api"
 )
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.

@@ -14,8 +14,8 @@ import (
 	"go.uber.org/fx"
 	"gopkg.in/mail.v2"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/dal"
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/model"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/dal"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/model"
 )
 
 const (

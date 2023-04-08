@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/model"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/model"
 )
 
 func newUser(db *gorm.DB, opts ...gen.DOOption) user {

@@ -14,7 +14,7 @@ import (
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.18.0"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/config"
+	"github.com/star-horizon/anonymous-box-saas/internal/config"
 )
 
 var tracer = otel.Tracer("internal.trace")

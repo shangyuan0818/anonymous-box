@@ -3,8 +3,8 @@
 package verifyservice
 
 import (
-	api "github.com/ahdark-services/anonymous-box-saas/services/verify/kitex_gen/api"
 	server "github.com/cloudwego/kitex/server"
+	api "github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api"
 )
 
 // NewInvoker creates a server.Invoker with the given handler and options.

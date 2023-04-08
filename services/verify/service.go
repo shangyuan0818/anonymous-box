@@ -6,10 +6,10 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/repo"
-	"github.com/ahdark-services/anonymous-box-saas/pkg/cache"
-	"github.com/ahdark-services/anonymous-box-saas/services/email/kitex_gen/api/mailservice"
-	"github.com/ahdark-services/anonymous-box-saas/services/verify/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/repo"
+	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
+	"github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api/mailservice"
+	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api"
 )
 
 var tracer = otel.Tracer("verify-service")

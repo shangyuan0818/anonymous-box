@@ -8,12 +8,12 @@ import (
 	"go.uber.org/fx"
 	"gopkg.in/mail.v2"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database"
-	"github.com/ahdark-services/anonymous-box-saas/internal/logger"
-	"github.com/ahdark-services/anonymous-box-saas/internal/mq"
-	"github.com/ahdark-services/anonymous-box-saas/internal/redis"
-	"github.com/ahdark-services/anonymous-box-saas/internal/trace"
-	"github.com/ahdark-services/anonymous-box-saas/pkg/cache"
+	"github.com/star-horizon/anonymous-box-saas/internal/database"
+	"github.com/star-horizon/anonymous-box-saas/internal/logger"
+	"github.com/star-horizon/anonymous-box-saas/internal/mq"
+	"github.com/star-horizon/anonymous-box-saas/internal/redis"
+	"github.com/star-horizon/anonymous-box-saas/internal/trace"
+	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 )
 
 const (

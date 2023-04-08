@@ -10,9 +10,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/ahdark-services/anonymous-box-saas/pkg/util"
-	emailapi "github.com/ahdark-services/anonymous-box-saas/services/email/kitex_gen/api"
-	"github.com/ahdark-services/anonymous-box-saas/services/verify/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/pkg/util"
+	emailapi "github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api"
 )
 
 type VerifyEmailTemplate struct {

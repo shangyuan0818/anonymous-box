@@ -3,7 +3,7 @@ package main
 import (
 	"gorm.io/gen"
 
-	"github.com/ahdark-services/anonymous-box-saas/internal/database/model"
+	"github.com/star-horizon/anonymous-box-saas/internal/database/model"
 )
 
 func main() {

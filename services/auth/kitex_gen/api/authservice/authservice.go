@@ -5,10 +5,10 @@ package authservice
 import (
 	"context"
 	"fmt"
-	api "github.com/ahdark-services/anonymous-box-saas/services/auth/kitex_gen/api"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
 	streaming "github.com/cloudwego/kitex/pkg/streaming"
+	api "github.com/star-horizon/anonymous-box-saas/services/auth/kitex_gen/api"
 	proto "google.golang.org/protobuf/proto"
 )
 
