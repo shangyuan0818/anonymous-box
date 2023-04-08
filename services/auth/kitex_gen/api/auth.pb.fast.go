@@ -99,6 +99,11 @@ func (x *RegisterRequest) FastRead(buf []byte, _type int8, number int32) (offset
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 4:
+		offset, err = x.fastReadField4(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -124,6 +129,11 @@ func (x *RegisterRequest) fastReadField2(buf []byte, _type int8) (offset int, er
 
 func (x *RegisterRequest) fastReadField3(buf []byte, _type int8) (offset int, err error) {
 	x.Password, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *RegisterRequest) fastReadField4(buf []byte, _type int8) (offset int, err error) {
+	x.VerificationCode, offset, err = fastpb.ReadString(buf, _type)
 	return offset, err
 }
 
@@ -184,6 +194,11 @@ func (x *ResetPasswordRequest) FastRead(buf []byte, _type int8, number int32) (o
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -204,6 +219,11 @@ func (x *ResetPasswordRequest) fastReadField1(buf []byte, _type int8) (offset in
 
 func (x *ResetPasswordRequest) fastReadField2(buf []byte, _type int8) (offset int, err error) {
 	x.VerificationCode, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *ResetPasswordRequest) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	x.NewPassword, offset, err = fastpb.ReadString(buf, _type)
 	return offset, err
 }
 
@@ -324,6 +344,7 @@ func (x *RegisterRequest) FastWrite(buf []byte) (offset int) {
 	offset += x.fastWriteField1(buf[offset:])
 	offset += x.fastWriteField2(buf[offset:])
 	offset += x.fastWriteField3(buf[offset:])
+	offset += x.fastWriteField4(buf[offset:])
 	return offset
 }
 
@@ -348,6 +369,14 @@ func (x *RegisterRequest) fastWriteField3(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteString(buf[offset:], 3, x.GetPassword())
+	return offset
+}
+
+func (x *RegisterRequest) fastWriteField4(buf []byte) (offset int) {
+	if x.VerificationCode == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 4, x.GetVerificationCode())
 	return offset
 }
 
@@ -391,6 +420,7 @@ func (x *ResetPasswordRequest) FastWrite(buf []byte) (offset int) {
 	}
 	offset += x.fastWriteField1(buf[offset:])
 	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
 	return offset
 }
 
@@ -407,6 +437,14 @@ func (x *ResetPasswordRequest) fastWriteField2(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteString(buf[offset:], 2, x.GetVerificationCode())
+	return offset
+}
+
+func (x *ResetPasswordRequest) fastWriteField3(buf []byte) (offset int) {
+	if x.NewPassword == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 3, x.GetNewPassword())
 	return offset
 }
 
@@ -508,6 +546,7 @@ func (x *RegisterRequest) Size() (n int) {
 	n += x.sizeField1()
 	n += x.sizeField2()
 	n += x.sizeField3()
+	n += x.sizeField4()
 	return n
 }
 
@@ -532,6 +571,14 @@ func (x *RegisterRequest) sizeField3() (n int) {
 		return n
 	}
 	n += fastpb.SizeString(3, x.GetPassword())
+	return n
+}
+
+func (x *RegisterRequest) sizeField4() (n int) {
+	if x.VerificationCode == "" {
+		return n
+	}
+	n += fastpb.SizeString(4, x.GetVerificationCode())
 	return n
 }
 
@@ -575,6 +622,7 @@ func (x *ResetPasswordRequest) Size() (n int) {
 	}
 	n += x.sizeField1()
 	n += x.sizeField2()
+	n += x.sizeField3()
 	return n
 }
 
@@ -591,6 +639,14 @@ func (x *ResetPasswordRequest) sizeField2() (n int) {
 		return n
 	}
 	n += fastpb.SizeString(2, x.GetVerificationCode())
+	return n
+}
+
+func (x *ResetPasswordRequest) sizeField3() (n int) {
+	if x.NewPassword == "" {
+		return n
+	}
+	n += fastpb.SizeString(3, x.GetNewPassword())
 	return n
 }
 
@@ -649,6 +705,7 @@ var fieldIDToName_RegisterRequest = map[int32]string{
 	1: "Username",
 	2: "Email",
 	3: "Password",
+	4: "VerificationCode",
 }
 
 var fieldIDToName_ChangePasswordRequest = map[int32]string{
@@ -660,6 +717,7 @@ var fieldIDToName_ChangePasswordRequest = map[int32]string{
 var fieldIDToName_ResetPasswordRequest = map[int32]string{
 	1: "Email",
 	2: "VerificationCode",
+	3: "NewPassword",
 }
 
 var fieldIDToName_AuthToken = map[int32]string{

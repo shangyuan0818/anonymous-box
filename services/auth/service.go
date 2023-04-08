@@ -1,18 +1,20 @@
 package auth
 
 import (
+	"bytes"
 	"context"
-	"strconv"
-	"time"
+	"errors"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/star-horizon/anonymous-box-saas/internal/database/model"
 	"github.com/star-horizon/anonymous-box-saas/internal/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/services/auth/kitex_gen/api"
+	verifyapi "github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api/verifyservice"
 )
 
 var tracer = otel.Tracer("auth-service")
@@ -20,52 +22,14 @@ var tracer = otel.Tracer("auth-service")
 // AuthServiceImpl implements the last service interface defined in the IDL.
 type AuthServiceImpl struct {
 	fx.In
-	SettingRepo repo.SettingRepo
-	UserRepo    repo.UserRepo
+	SettingRepo     repo.SettingRepo
+	UserRepo        repo.UserRepo
+	VerifySvcClient verifyservice.Client
 }
 
 // NewAuthServiceImpl creates a new AuthServiceImpl.
 func NewAuthServiceImpl(impl AuthServiceImpl) api.AuthService {
 	return &impl
-}
-
-func (s *AuthServiceImpl) signJwtToken(user *model.User) (string, error) {
-	ctx, span := tracer.Start(context.Background(), "sign-jwt-token")
-	defer span.End()
-
-	now := time.Now()
-
-	logger := logrus.WithFields(logrus.Fields{
-		"user.id":       user.ID,
-		"user.username": user.Username,
-		"user.email":    user.Email,
-		"issued_at":     now,
-		"not_before":    now,
-		"expires_at":    now.Add(time.Hour * 24),
-	})
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Issuer:    "authservice",
-		IssuedAt:  jwt.NewNumericDate(now),
-		NotBefore: jwt.NewNumericDate(now),
-		ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour * 24)),
-		Subject:   user.Username,
-		ID:        strconv.FormatUint(uint64(user.ID), 10),
-	})
-
-	jwtSecret, err := s.SettingRepo.GetByName(ctx, "auth_jwt_secret")
-	if err != nil {
-		logger.WithError(err).Error("query jwt secret failed")
-		return "", err
-	}
-
-	tokenString, err := token.SignedString([]byte(jwtSecret))
-	if err != nil {
-		logger.WithError(err).Error("sign token failed")
-		return "", err
-	}
-
-	return tokenString, nil
 }
 
 // UsernameAuth implements the AuthServiceImpl interface.
@@ -74,12 +38,17 @@ func (s *AuthServiceImpl) UsernameAuth(ctx context.Context, req *api.UsernameAut
 	defer span.End()
 
 	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
-		"username": req.GetUsername(),
+		"user.username": req.GetUsername(),
 	})
 
 	user, err := s.UserRepo.GetByUsername(ctx, req.GetUsername())
 	if err != nil {
 		logger.WithError(err).Error("query user failed")
+		return nil, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.GetPassword())); err != nil {
+		logger.WithError(err).Error("password not match")
 		return nil, err
 	}
 
@@ -102,12 +71,17 @@ func (s *AuthServiceImpl) EmailAuth(ctx context.Context, req *api.EmailAuthReque
 	defer span.End()
 
 	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
-		"email": req.GetEmail(),
+		"user.email": req.GetEmail(),
 	})
 
 	user, err := s.UserRepo.GetByEmail(ctx, req.GetEmail())
 	if err != nil {
 		logger.WithError(err).Error("query user failed")
+		return nil, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.GetPassword())); err != nil {
+		logger.WithError(err).Error("password not match")
 		return nil, err
 	}
 
@@ -124,26 +98,191 @@ func (s *AuthServiceImpl) EmailAuth(ctx context.Context, req *api.EmailAuthReque
 	return resp, nil
 }
 
+var (
+	ErrInvalidVerificationCode = errors.New("invalid verification code")
+)
+
 // Register implements the AuthServiceImpl interface.
-func (s *AuthServiceImpl) Register(ctx context.Context, req *api.RegisterRequest) (resp *api.AuthToken, err error) {
-	// TODO: Your code here...
-	return
+func (s *AuthServiceImpl) Register(ctx context.Context, req *api.RegisterRequest) (*api.AuthToken, error) {
+	ctx, span := tracer.Start(ctx, "register")
+	defer span.End()
+
+	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
+		"user.username": req.GetUsername(),
+		"user.email":    req.GetEmail(),
+	})
+
+	// check verification code
+	if resp, err := s.VerifySvcClient.VerifyEmail(ctx, &verifyapi.VerifyEmailRequest{
+		Email: req.GetEmail(),
+		Code:  req.GetVerificationCode(),
+	}); err != nil {
+		logger.WithError(err).Error("verify email failed")
+		return nil, err
+	} else if !resp.GetOk() || resp.GetEmail() != req.GetEmail() {
+		logger.WithError(ErrInvalidVerificationCode).Error("verify email failed")
+		return nil, ErrInvalidVerificationCode
+	}
+
+	// hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.GetPassword()), bcrypt.DefaultCost)
+	if err != nil {
+		logger.WithError(err).Error("hash password failed")
+		return nil, err
+	}
+
+	// create user
+	user := &model.User{
+		Username: req.GetUsername(),
+		Email:    req.GetEmail(),
+		Password: string(hashedPassword),
+	}
+	if err := s.UserRepo.Create(ctx, user); err != nil {
+		logger.WithError(err).Error("create user failed")
+		return nil, err
+	}
+
+	// sign token
+	tokenString, err := s.signJwtToken(user)
+	if err != nil {
+		logger.WithError(err).Error("sign token failed")
+		return nil, err
+	}
+
+	return &api.AuthToken{
+		Token: tokenString,
+	}, nil
 }
 
+var (
+	ErrOldPasswordNotMatch = errors.New("old password not match")
+	ErrSamePassword        = errors.New("new password is same as old password")
+)
+
 // ChangePassword implements the AuthServiceImpl interface.
-func (s *AuthServiceImpl) ChangePassword(ctx context.Context, req *api.ChangePasswordRequest) (resp *api.AuthToken, err error) {
-	// TODO: Your code here...
-	return
+func (s *AuthServiceImpl) ChangePassword(ctx context.Context, req *api.ChangePasswordRequest) (*api.AuthToken, error) {
+	ctx, span := tracer.Start(ctx, "change-password")
+	defer span.End()
+
+	// parse token
+	user, err := s.parseJwtToken(ctx, req.Token)
+	if err != nil {
+		logrus.WithContext(ctx).WithError(err).Error("parse token failed")
+		return nil, err
+	}
+
+	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
+		"user.id":       user.ID,
+		"user.username": user.Username,
+		"user.email":    user.Email,
+	})
+
+	// check old password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.GetOldPassword())); err != nil {
+		logger.WithError(err).Error("old password not match")
+		return nil, ErrOldPasswordNotMatch
+	}
+
+	// hash new password
+	hashedNewPassword, err := bcrypt.GenerateFromPassword([]byte(req.GetNewPassword()), bcrypt.DefaultCost)
+	if err != nil {
+		logger.WithError(err).Error("hash password failed")
+		return nil, err
+	}
+
+	// check new password is same as old password
+	if bytes.Equal(hashedNewPassword, []byte(user.Password)) {
+		logger.WithError(err).Error("new password is same as old password")
+		return nil, ErrSamePassword
+	}
+
+	// update password
+	user.Password = string(hashedNewPassword)
+	if err := s.UserRepo.Update(ctx, user); err != nil {
+		logger.WithError(err).Error("update user failed")
+		return nil, err
+	}
+
+	// sign new token
+	tokenString, err := s.signJwtToken(user)
+	if err != nil {
+		logger.WithError(err).Error("sign token failed")
+		return nil, err
+	}
+
+	return &api.AuthToken{
+		Token: tokenString,
+	}, nil
 }
 
 // ResetPassword implements the AuthServiceImpl interface.
-func (s *AuthServiceImpl) ResetPassword(ctx context.Context, req *api.ResetPasswordRequest) (resp *api.AuthToken, err error) {
-	// TODO: Your code here...
-	return
+func (s *AuthServiceImpl) ResetPassword(ctx context.Context, req *api.ResetPasswordRequest) (*api.AuthToken, error) {
+	ctx, span := tracer.Start(ctx, "reset-password")
+	defer span.End()
+
+	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
+		"user.email": req.GetEmail(),
+	})
+
+	// check verification code
+	if resp, err := s.VerifySvcClient.VerifyEmail(ctx, &verifyapi.VerifyEmailRequest{
+		Email: req.GetEmail(),
+		Code:  req.GetVerificationCode(),
+	}); err != nil {
+		logger.WithError(err).Error("verify email failed")
+		return nil, err
+	} else if !resp.GetOk() || resp.GetEmail() != req.GetEmail() {
+		logger.WithError(ErrInvalidVerificationCode).Error("verify email failed")
+		return nil, ErrInvalidVerificationCode
+	}
+
+	// get user
+	user, err := s.UserRepo.GetByEmail(ctx, req.GetEmail())
+	if err != nil {
+		logger.WithError(err).Error("get user failed")
+		return nil, err
+	}
+
+	// hash new password
+	hashedNewPassword, err := bcrypt.GenerateFromPassword([]byte(req.GetNewPassword()), bcrypt.DefaultCost)
+	if err != nil {
+		logger.WithError(err).Error("hash password failed")
+		return nil, err
+	}
+
+	// update password
+	user.Password = string(hashedNewPassword)
+	if err := s.UserRepo.Update(ctx, user); err != nil {
+		logger.WithError(err).Error("update user failed")
+		return nil, err
+	}
+
+	// sign new token
+	tokenString, err := s.signJwtToken(user)
+	if err != nil {
+		logger.WithError(err).Error("sign token failed")
+		return nil, err
+	}
+
+	return &api.AuthToken{
+		Token: tokenString,
+	}, nil
 }
 
 // GetServerAuthData implements the AuthServiceImpl interface.
-func (s *AuthServiceImpl) GetServerAuthData(ctx context.Context, req *api.AuthToken) (resp *api.ServerAuthDataResponse, err error) {
-	// TODO: Your code here...
-	return
+func (s *AuthServiceImpl) GetServerAuthData(ctx context.Context, req *api.AuthToken) (*api.ServerAuthDataResponse, error) {
+	ctx, span := tracer.Start(ctx, "get-server-auth-data")
+	defer span.End()
+
+	// parse token
+	user, err := s.parseJwtToken(ctx, req.Token)
+	if err != nil {
+		logrus.WithContext(ctx).WithError(err).Error("parse token failed")
+		return nil, err
+	}
+
+	return &api.ServerAuthDataResponse{
+		Uid:      uint32(user.ID),
+		Username: user.Username,
+	}, nil
 }

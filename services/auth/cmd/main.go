@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/star-horizon/anonymous-box-saas/services/verify"
 
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
@@ -39,6 +40,7 @@ func init() {
 		redis.Module(),
 		fx.Provide(cache.NewRedisDriver),
 		database.Module(),
+		verify.Module(),
 		auth.Module(),
 		fx.Invoke(run),
 	)

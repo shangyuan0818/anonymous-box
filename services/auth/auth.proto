@@ -17,6 +17,7 @@ message RegisterRequest {
   string username = 1;
   string email = 2;
   string password = 3;
+  string verification_code = 4;
 }
 
 message ChangePasswordRequest {
@@ -28,6 +29,7 @@ message ChangePasswordRequest {
 message ResetPasswordRequest {
   string email = 1;
   string verification_code = 2;
+  string new_password = 3;
 }
 
 message AuthToken {
