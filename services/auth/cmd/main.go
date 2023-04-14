@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
-	"github.com/star-horizon/anonymous-box-saas/database"
 
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"
+	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
+	"github.com/star-horizon/anonymous-box-saas/database"
 	"github.com/star-horizon/anonymous-box-saas/internal/infra"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
@@ -50,9 +51,14 @@ func run(ctx context.Context, svc api.AuthService, lc fx.Lifecycle, r registry.R
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 
-	svr := authservice.NewServer(svc, server.WithRegistry(r), server.WithRegistryInfo(&registry.Info{
-		ServiceName: serviceName,
-	}))
+	svr := authservice.NewServer(
+		svc,
+		server.WithRegistry(r),
+		server.WithRegistryInfo(&registry.Info{
+			ServiceName: serviceName,
+		}),
+		server.WithSuite(tracing.NewServerSuite()),
+	)
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {

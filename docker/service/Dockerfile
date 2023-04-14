@@ -1,10 +1,10 @@
 FROM golang:1.20-alpine AS builder
 WORKDIR /go/src/app
 
-COPY go.mod go.sum ./
+COPY ../../go.mod go.sum ./
 RUN go mod download
 
-COPY . .
+COPY ../.. .
 
 ARG SERVICE_NAME
 ARG SERVICE_PATH=services/${SERVICE_NAME}/cmd/*.go

@@ -61,7 +61,7 @@ services:
     init: true
     build:
       context: .
-      dockerfile: ./Migrator.Dockerfile
+      dockerfile: docker/migrator/Dockerfile
     networks:
       - app-network
     environment:
@@ -87,7 +87,7 @@ services:
     hostname: gateway
     build:
       context: .
-      dockerfile: ./Gateway.Dockerfile
+      dockerfile: docker/gateway/Dockerfile
     ports:
       - "8080:8080"
     networks:
@@ -104,7 +104,7 @@ services:
     hostname: verify-service
     build:
       context: .
-      dockerfile: ./Service.Dockerfile
+      dockerfile: docker/service/Dockerfile
       args:
         - SERVICE_NAME=verify
     networks:
@@ -133,7 +133,7 @@ services:
     hostname: auth-service
     build:
       context: .
-      dockerfile: ./Service.Dockerfile
+      dockerfile: docker/service/Dockerfile
       args:
         - SERVICE_NAME=auth
     networks:
@@ -161,7 +161,7 @@ services:
     hostname: email-service
     build:
       context: .
-      dockerfile: ./Service.Dockerfile
+      dockerfile: docker/service/Dockerfile
       args:
         - SERVICE_NAME=email
         - SERVICE_PATH=services/email/cmd/server/main.go
@@ -192,7 +192,7 @@ services:
       replicas: 1
     build:
       context: .
-      dockerfile: ./Service.Dockerfile
+      dockerfile: docker/service/Dockerfile
       args:
         - SERVICE_NAME=email
         - SERVICE_PATH=services/email/cmd/consumer/*.go

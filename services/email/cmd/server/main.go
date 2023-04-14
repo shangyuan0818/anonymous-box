@@ -5,6 +5,7 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"
+	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
@@ -52,9 +53,14 @@ func run(ctx context.Context, lc fx.Lifecycle, svc api.MailService, r registry.R
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 
-	svr := mailservice.NewServer(svc, server.WithRegistry(r), server.WithRegistryInfo(&registry.Info{
-		ServiceName: serviceName,
-	}))
+	svr := mailservice.NewServer(
+		svc,
+		server.WithRegistry(r),
+		server.WithRegistryInfo(&registry.Info{
+			ServiceName: serviceName,
+		}),
+		server.WithSuite(tracing.NewServerSuite()),
+	)
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {

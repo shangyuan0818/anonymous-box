@@ -23,8 +23,8 @@ type env struct {
 	Endpoint string `default:"http://localhost:14268/api/traces"`
 }
 
-func InitTracer(ctx context.Context, serviceName string) error {
-	ctx, span := tracer.Start(ctx, "init-tracer")
+func NewTracerProvider(ctx context.Context, serviceName string) (*tracesdk.TracerProvider, error) {
+	ctx, span := tracer.Start(ctx, "new-tracer-provider")
 	defer span.End()
 
 	if err := godotenv.Load(".env"); err != nil {
@@ -34,13 +34,13 @@ func InitTracer(ctx context.Context, serviceName string) error {
 	var e env
 	if err := envconfig.Process("TRACE", &e); err != nil {
 		logrus.WithContext(ctx).WithError(err).Warn("failed to process envconfig")
-		return err
+		return nil, err
 	}
 
 	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(e.Endpoint)))
 	if err != nil {
 		logrus.WithContext(ctx).WithError(err).Error("failed to create jaeger exporter")
-		return err
+		return nil, err
 	}
 
 	tp := tracesdk.NewTracerProvider(
@@ -54,7 +54,14 @@ func InitTracer(ctx context.Context, serviceName string) error {
 		)),
 	)
 
-	otel.SetTracerProvider(tp)
+	return tp, nil
+}
+
+func InitTracer(ctx context.Context, tracerProvider *tracesdk.TracerProvider) error {
+	ctx, span := tracer.Start(ctx, "init-tracer")
+	defer span.End()
+
+	otel.SetTracerProvider(tracerProvider)
 	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
 		logrus.PanicLevel,
 		logrus.FatalLevel,
