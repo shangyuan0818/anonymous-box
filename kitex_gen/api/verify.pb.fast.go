@@ -5,6 +5,7 @@ package api
 import (
 	fmt "fmt"
 	fastpb "github.com/cloudwego/fastpb"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 var (
@@ -34,41 +35,6 @@ ReadFieldError:
 
 func (x *ApplyEmailVerifyRequest) fastReadField1(buf []byte, _type int8) (offset int, err error) {
 	x.Email, offset, err = fastpb.ReadString(buf, _type)
-	return offset, err
-}
-
-func (x *ApplyEmailVerifyResponse) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
-	switch number {
-	case 1:
-		offset, err = x.fastReadField1(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	case 2:
-		offset, err = x.fastReadField2(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	default:
-		offset, err = fastpb.Skip(buf, _type, number)
-		if err != nil {
-			goto SkipFieldError
-		}
-	}
-	return offset, nil
-SkipFieldError:
-	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
-ReadFieldError:
-	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_ApplyEmailVerifyResponse[number], err)
-}
-
-func (x *ApplyEmailVerifyResponse) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Email, offset, err = fastpb.ReadString(buf, _type)
-	return offset, err
-}
-
-func (x *ApplyEmailVerifyResponse) fastReadField2(buf []byte, _type int8) (offset int, err error) {
-	x.Ok, offset, err = fastpb.ReadBool(buf, _type)
 	return offset, err
 }
 
@@ -107,31 +73,6 @@ func (x *VerifyEmailRequest) fastReadField2(buf []byte, _type int8) (offset int,
 	return offset, err
 }
 
-func (x *VerifyEmailResponse) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
-	switch number {
-	case 1:
-		offset, err = x.fastReadField1(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	default:
-		offset, err = fastpb.Skip(buf, _type, number)
-		if err != nil {
-			goto SkipFieldError
-		}
-	}
-	return offset, nil
-SkipFieldError:
-	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
-ReadFieldError:
-	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_VerifyEmailResponse[number], err)
-}
-
-func (x *VerifyEmailResponse) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Ok, offset, err = fastpb.ReadBool(buf, _type)
-	return offset, err
-}
-
 func (x *ApplyEmailVerifyRequest) FastWrite(buf []byte) (offset int) {
 	if x == nil {
 		return offset
@@ -145,31 +86,6 @@ func (x *ApplyEmailVerifyRequest) fastWriteField1(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteString(buf[offset:], 1, x.GetEmail())
-	return offset
-}
-
-func (x *ApplyEmailVerifyResponse) FastWrite(buf []byte) (offset int) {
-	if x == nil {
-		return offset
-	}
-	offset += x.fastWriteField1(buf[offset:])
-	offset += x.fastWriteField2(buf[offset:])
-	return offset
-}
-
-func (x *ApplyEmailVerifyResponse) fastWriteField1(buf []byte) (offset int) {
-	if x.Email == "" {
-		return offset
-	}
-	offset += fastpb.WriteString(buf[offset:], 1, x.GetEmail())
-	return offset
-}
-
-func (x *ApplyEmailVerifyResponse) fastWriteField2(buf []byte) (offset int) {
-	if !x.Ok {
-		return offset
-	}
-	offset += fastpb.WriteBool(buf[offset:], 2, x.GetOk())
 	return offset
 }
 
@@ -198,22 +114,6 @@ func (x *VerifyEmailRequest) fastWriteField2(buf []byte) (offset int) {
 	return offset
 }
 
-func (x *VerifyEmailResponse) FastWrite(buf []byte) (offset int) {
-	if x == nil {
-		return offset
-	}
-	offset += x.fastWriteField1(buf[offset:])
-	return offset
-}
-
-func (x *VerifyEmailResponse) fastWriteField1(buf []byte) (offset int) {
-	if !x.Ok {
-		return offset
-	}
-	offset += fastpb.WriteBool(buf[offset:], 1, x.GetOk())
-	return offset
-}
-
 func (x *ApplyEmailVerifyRequest) Size() (n int) {
 	if x == nil {
 		return n
@@ -227,31 +127,6 @@ func (x *ApplyEmailVerifyRequest) sizeField1() (n int) {
 		return n
 	}
 	n += fastpb.SizeString(1, x.GetEmail())
-	return n
-}
-
-func (x *ApplyEmailVerifyResponse) Size() (n int) {
-	if x == nil {
-		return n
-	}
-	n += x.sizeField1()
-	n += x.sizeField2()
-	return n
-}
-
-func (x *ApplyEmailVerifyResponse) sizeField1() (n int) {
-	if x.Email == "" {
-		return n
-	}
-	n += fastpb.SizeString(1, x.GetEmail())
-	return n
-}
-
-func (x *ApplyEmailVerifyResponse) sizeField2() (n int) {
-	if !x.Ok {
-		return n
-	}
-	n += fastpb.SizeBool(2, x.GetOk())
 	return n
 }
 
@@ -280,29 +155,8 @@ func (x *VerifyEmailRequest) sizeField2() (n int) {
 	return n
 }
 
-func (x *VerifyEmailResponse) Size() (n int) {
-	if x == nil {
-		return n
-	}
-	n += x.sizeField1()
-	return n
-}
-
-func (x *VerifyEmailResponse) sizeField1() (n int) {
-	if !x.Ok {
-		return n
-	}
-	n += fastpb.SizeBool(1, x.GetOk())
-	return n
-}
-
 var fieldIDToName_ApplyEmailVerifyRequest = map[int32]string{
 	1: "Email",
-}
-
-var fieldIDToName_ApplyEmailVerifyResponse = map[int32]string{
-	1: "Email",
-	2: "Ok",
 }
 
 var fieldIDToName_VerifyEmailRequest = map[int32]string{
@@ -310,6 +164,4 @@ var fieldIDToName_VerifyEmailRequest = map[int32]string{
 	2: "Code",
 }
 
-var fieldIDToName_VerifyEmailResponse = map[int32]string{
-	1: "Ok",
-}
+var _ = emptypb.File_google_protobuf_empty_proto

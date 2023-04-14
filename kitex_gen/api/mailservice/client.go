@@ -7,11 +7,12 @@ import (
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
 	api "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	SendMail(ctx context.Context, Req *api.SendMailRequest, callOptions ...callopt.Option) (r *api.SendMailResponse, err error)
+	SendMail(ctx context.Context, Req *api.SendMailRequest, callOptions ...callopt.Option) (r *emptypb.Empty, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -43,7 +44,7 @@ type kMailServiceClient struct {
 	*kClient
 }
 
-func (p *kMailServiceClient) SendMail(ctx context.Context, Req *api.SendMailRequest, callOptions ...callopt.Option) (r *api.SendMailResponse, err error) {
+func (p *kMailServiceClient) SendMail(ctx context.Context, Req *api.SendMailRequest, callOptions ...callopt.Option) (r *emptypb.Empty, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.SendMail(ctx, Req)
 }

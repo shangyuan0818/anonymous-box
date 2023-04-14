@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/star-horizon/anonymous-box-saas/database/model"
-	repo2 "github.com/star-horizon/anonymous-box-saas/database/repo"
 
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/star-horizon/anonymous-box-saas/database/model"
+	"github.com/star-horizon/anonymous-box-saas/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	verifyapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/verifyservice"
@@ -22,8 +23,8 @@ var tracer = otel.Tracer("auth-service")
 // AuthServiceImpl implements the last service interface defined in the IDL.
 type AuthServiceImpl struct {
 	fx.In
-	SettingRepo     repo2.SettingRepo
-	UserRepo        repo2.UserRepo
+	SettingRepo     repo.SettingRepo
+	UserRepo        repo.UserRepo
 	VerifySvcClient verifyservice.Client
 }
 
@@ -58,11 +59,9 @@ func (s *AuthServiceImpl) UsernameAuth(ctx context.Context, req *api.UsernameAut
 		return nil, err
 	}
 
-	resp := &api.AuthToken{
+	return &api.AuthToken{
 		Token: tokenString,
-	}
-
-	return resp, nil
+	}, nil
 }
 
 // EmailAuth implements the AuthServiceImpl interface.
@@ -91,16 +90,13 @@ func (s *AuthServiceImpl) EmailAuth(ctx context.Context, req *api.EmailAuthReque
 		return nil, err
 	}
 
-	resp := &api.AuthToken{
+	return &api.AuthToken{
 		Token: tokenString,
-	}
-
-	return resp, nil
+	}, nil
 }
 
 var (
-	ErrInvalidVerificationCode = errors.New("invalid verification code")
-	ErrRegisterNotAllowed      = errors.New("register is not allowed")
+	ErrRegisterNotAllowed = errors.New("register is not allowed")
 )
 
 // Register implements the AuthServiceImpl interface.
@@ -125,15 +121,12 @@ func (s *AuthServiceImpl) Register(ctx context.Context, req *api.RegisterRequest
 		logger.WithError(err).Error("query setting failed")
 		return nil, err
 	} else if requireEmailVerify {
-		if resp, err := s.VerifySvcClient.VerifyEmail(ctx, &verifyapi.VerifyEmailRequest{
+		if _, err := s.VerifySvcClient.VerifyEmail(ctx, &verifyapi.VerifyEmailRequest{
 			Email: req.GetEmail(),
 			Code:  req.GetVerificationCode(),
 		}); err != nil {
 			logger.WithError(err).Error("verify email failed, verify service error")
 			return nil, err
-		} else if !resp.GetOk() {
-			logger.WithError(ErrInvalidVerificationCode).Error("verify email failed, invalid verification status")
-			return nil, ErrInvalidVerificationCode
 		}
 	}
 
@@ -238,15 +231,12 @@ func (s *AuthServiceImpl) ResetPassword(ctx context.Context, req *api.ResetPassw
 	})
 
 	// check verification code
-	if resp, err := s.VerifySvcClient.VerifyEmail(ctx, &verifyapi.VerifyEmailRequest{
+	if _, err := s.VerifySvcClient.VerifyEmail(ctx, &verifyapi.VerifyEmailRequest{
 		Email: req.GetEmail(),
 		Code:  req.GetVerificationCode(),
 	}); err != nil {
 		logger.WithError(err).Error("verify email failed")
 		return nil, err
-	} else if !resp.GetOk() {
-		logger.WithError(ErrInvalidVerificationCode).Error("verify email failed")
-		return nil, ErrInvalidVerificationCode
 	}
 
 	// get user
@@ -295,7 +285,10 @@ func (s *AuthServiceImpl) GetServerAuthData(ctx context.Context, req *api.AuthTo
 	}
 
 	return &api.ServerAuthDataResponse{
-		Uid:      uint32(user.ID),
-		Username: user.Username,
+		Uid:       user.ID,
+		CreatedAt: timestamppb.New(user.CreatedAt),
+		UpdatedAt: timestamppb.New(user.UpdatedAt),
+		Username:  user.Username,
+		Email:     user.Email,
 	}, nil
 }

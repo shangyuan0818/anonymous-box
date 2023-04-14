@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/star-horizon/anonymous-box-saas/database/repo"
 
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
+	"google.golang.org/protobuf/types/known/emptypb"
 
+	"github.com/star-horizon/anonymous-box-saas/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/mailservice"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
@@ -35,24 +36,18 @@ var (
 )
 
 // VerifyEmail implements the VerifyServiceImpl interface.
-func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *api.VerifyEmailRequest) (resp *api.VerifyEmailResponse, err error) {
+func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *api.VerifyEmailRequest) (*emptypb.Empty, error) {
 	ctx, span := tracer.Start(ctx, "verify-email")
 	defer span.End()
 
 	v, exist := s.Cache.Get(ctx, fmt.Sprint("verify_service::email_verify_code::", req.GetEmail()))
 	if !exist {
-		return &api.VerifyEmailResponse{
-			Ok: false,
-		}, ErrVerifyCodeNotFound
+		return nil, ErrVerifyCodeNotFound
 	}
 
 	if v != req.GetCode() {
-		return &api.VerifyEmailResponse{
-			Ok: false,
-		}, ErrVerifyCodeInvalid
+		return nil, ErrVerifyCodeInvalid
 	}
 
-	return &api.VerifyEmailResponse{
-		Ok: true,
-	}, nil
+	return &emptypb.Empty{}, nil
 }

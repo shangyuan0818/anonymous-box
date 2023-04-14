@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	emailapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
@@ -41,8 +43,14 @@ func (s *VerifyServiceImpl) generateVerifyCode(ctx context.Context, email string
 	return code, nil
 }
 
+var (
+	RegexEmailAddress = regexp.MustCompile(`^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$`)
+
+	ErrInvalidEmailAddress = errors.New("invalid email address")
+)
+
 // ApplyEmailVerify implements the VerifyServiceImpl interface.
-func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.ApplyEmailVerifyRequest) (*api.ApplyEmailVerifyResponse, error) {
+func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.ApplyEmailVerifyRequest) (*emptypb.Empty, error) {
 	ctx, span := tracer.Start(ctx, "apply-email-verify", trace.WithAttributes(
 		attribute.String("params.email", req.GetEmail()),
 	))
@@ -50,14 +58,17 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 
 	logger := logrus.WithContext(ctx).WithField("params.email", req.GetEmail())
 
+	// validate email address
+	if !RegexEmailAddress.MatchString(req.GetEmail()) {
+		logger.WithError(ErrInvalidEmailAddress).Errorf("invalid email address: %s", req.GetEmail())
+		return nil, ErrInvalidEmailAddress
+	}
+
 	// get app name from setting table
 	appName, err := s.SettingRepo.GetByName(ctx, "app_name")
 	if err != nil {
 		logger.WithError(err).Error("query setting failed")
-		return &api.ApplyEmailVerifyResponse{
-			Email: req.Email,
-			Ok:    false,
-		}, err
+		return nil, err
 	}
 
 	settings, err := s.SettingRepo.ListByNames(ctx, []string{
@@ -71,10 +82,7 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 	code, err := s.generateVerifyCode(ctx, req.GetEmail())
 	if err != nil {
 		logger.WithError(err).Error("generate verify code failed")
-		return &api.ApplyEmailVerifyResponse{
-			Email: req.Email,
-			Ok:    false,
-		}, err
+		return nil, err
 	}
 
 	content, err := util.RenderTemplate(settings["email_template_verify_code"], &VerifyEmailTemplate{
@@ -86,14 +94,11 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 	})
 	if err != nil {
 		logger.WithError(err).Error("render email template failed")
-		return &api.ApplyEmailVerifyResponse{
-			Email: req.Email,
-			Ok:    false,
-		}, err
+		return nil, err
 	}
 
 	// send email via email service api
-	if r, err := s.MailSvcClient.SendMail(ctx, &emailapi.SendMailRequest{
+	if _, err := s.MailSvcClient.SendMail(ctx, &emailapi.SendMailRequest{
 		Type: lo.Switch[string, emailapi.MailType](settings["email_template_verify_code_content_type"]).
 			Case("text/plain", emailapi.MailType_MAIL_TYPE_TEXT).
 			Case("text/html", emailapi.MailType_MAIL_TYPE_HTML).
@@ -104,21 +109,8 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 	}); err != nil {
 		logger.WithError(err).Error("send email failed")
 
-		return &api.ApplyEmailVerifyResponse{
-			Email: req.Email,
-			Ok:    false,
-		}, err
-	} else if !r.GetSuccess() {
-		logger.Warn("send email failed, unknown reason")
-
-		return &api.ApplyEmailVerifyResponse{
-			Email: req.Email,
-			Ok:    false,
-		}, errors.New("send email failed, unknown reason")
+		return nil, err
 	}
 
-	return &api.ApplyEmailVerifyResponse{
-		Email: req.Email,
-		Ok:    true,
-	}, nil
+	return &emptypb.Empty{}, nil
 }

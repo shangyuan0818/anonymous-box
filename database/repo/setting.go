@@ -3,16 +3,16 @@ package repo
 import (
 	"context"
 	"fmt"
-	"github.com/star-horizon/anonymous-box-saas/database/dal"
-	"github.com/star-horizon/anonymous-box-saas/database/model"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
 	"strconv"
 	"strings"
 
 	"github.com/samber/lo"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 
+	"github.com/star-horizon/anonymous-box-saas/database/dal"
+	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 )
 
@@ -41,7 +41,7 @@ func (r *settingRepo) GetByName(ctx context.Context, name string) (string, error
 	ctx, span := tracer.Start(ctx, "get-setting-by-name")
 	defer span.End()
 
-	if v, exist := r.Cache.Get(ctx, fmt.Sprint("database::setting::", name)); exist {
+	if v, exist := r.Cache.Get(ctx, fmt.Sprint("database:setting:", name)); exist {
 		if setting, ok := v.(string); ok {
 			return setting, nil
 		}
@@ -52,7 +52,7 @@ func (r *settingRepo) GetByName(ctx context.Context, name string) (string, error
 		return "", err
 	}
 
-	_ = r.Cache.Set(ctx, fmt.Sprint("database::setting::", name), setting.Value, 0)
+	_ = r.Cache.Set(ctx, fmt.Sprint("database:setting:", name), setting.Value, 0)
 
 	return setting.Value, nil
 }
@@ -93,7 +93,7 @@ func (r *settingRepo) ListByNames(ctx context.Context, names []string) (map[stri
 	defer span.End()
 
 	data, missed, err := r.Cache.GetMulti(ctx, lo.Map(names, func(name string, _ int) string {
-		return fmt.Sprint("database::setting::", name)
+		return fmt.Sprint("database:setting:", name)
 	}))
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (r *settingRepo) ListByNames(ctx context.Context, names []string) (map[stri
 	var settings = make(map[string]string, len(names))
 	for key := range data {
 		if setting, ok := data[key].(string); ok {
-			settings[strings.TrimPrefix(key, "database::setting::")] = setting
+			settings[strings.TrimPrefix(key, "database:setting:")] = setting
 		} else {
 			missed = append(missed, key)
 		}
@@ -121,7 +121,7 @@ func (r *settingRepo) ListByNames(ctx context.Context, names []string) (map[stri
 		// cache settings
 		_ = r.Cache.SetMulti(ctx, lo.MapEntries(settings, func(key string, value string) (string, any) {
 			return key, value
-		}), "database::setting::")
+		}), "database:setting:")
 	}
 
 	return settings, nil
@@ -135,7 +135,7 @@ func (r *settingRepo) SetByName(ctx context.Context, name, value string) error {
 	))
 	defer span.End()
 
-	if err := r.Cache.Delete(ctx, fmt.Sprint("database::setting::", name)); err != nil {
+	if err := r.Cache.Delete(ctx, fmt.Sprint("database:setting:", name)); err != nil {
 		return err
 	}
 
@@ -145,7 +145,7 @@ func (r *settingRepo) SetByName(ctx context.Context, name, value string) error {
 		return err
 	}
 
-	_ = r.Cache.Set(ctx, fmt.Sprint("database::setting::", name), value, 0)
+	_ = r.Cache.Set(ctx, fmt.Sprint("database:setting:", name), value, 0)
 
 	return nil
 }

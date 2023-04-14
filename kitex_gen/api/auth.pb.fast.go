@@ -5,6 +5,7 @@ package api
 import (
 	fmt "fmt"
 	fastpb "github.com/cloudwego/fastpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
@@ -264,6 +265,21 @@ func (x *ServerAuthDataResponse) FastRead(buf []byte, _type int8, number int32) 
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 4:
+		offset, err = x.fastReadField4(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 5:
+		offset, err = x.fastReadField5(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -278,12 +294,37 @@ ReadFieldError:
 }
 
 func (x *ServerAuthDataResponse) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Uid, offset, err = fastpb.ReadUint32(buf, _type)
+	x.Uid, offset, err = fastpb.ReadUint64(buf, _type)
 	return offset, err
 }
 
 func (x *ServerAuthDataResponse) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	var v timestamppb.Timestamp
+	offset, err = fastpb.ReadMessage(buf, _type, &v)
+	if err != nil {
+		return offset, err
+	}
+	x.CreatedAt = &v
+	return offset, nil
+}
+
+func (x *ServerAuthDataResponse) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	var v timestamppb.Timestamp
+	offset, err = fastpb.ReadMessage(buf, _type, &v)
+	if err != nil {
+		return offset, err
+	}
+	x.UpdatedAt = &v
+	return offset, nil
+}
+
+func (x *ServerAuthDataResponse) fastReadField4(buf []byte, _type int8) (offset int, err error) {
 	x.Username, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *ServerAuthDataResponse) fastReadField5(buf []byte, _type int8) (offset int, err error) {
+	x.Email, offset, err = fastpb.ReadString(buf, _type)
 	return offset, err
 }
 
@@ -470,6 +511,9 @@ func (x *ServerAuthDataResponse) FastWrite(buf []byte) (offset int) {
 	}
 	offset += x.fastWriteField1(buf[offset:])
 	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
+	offset += x.fastWriteField4(buf[offset:])
+	offset += x.fastWriteField5(buf[offset:])
 	return offset
 }
 
@@ -477,15 +521,39 @@ func (x *ServerAuthDataResponse) fastWriteField1(buf []byte) (offset int) {
 	if x.Uid == 0 {
 		return offset
 	}
-	offset += fastpb.WriteUint32(buf[offset:], 1, x.GetUid())
+	offset += fastpb.WriteUint64(buf[offset:], 1, x.GetUid())
 	return offset
 }
 
 func (x *ServerAuthDataResponse) fastWriteField2(buf []byte) (offset int) {
+	if x.CreatedAt == nil {
+		return offset
+	}
+	offset += fastpb.WriteMessage(buf[offset:], 2, x.GetCreatedAt())
+	return offset
+}
+
+func (x *ServerAuthDataResponse) fastWriteField3(buf []byte) (offset int) {
+	if x.UpdatedAt == nil {
+		return offset
+	}
+	offset += fastpb.WriteMessage(buf[offset:], 3, x.GetUpdatedAt())
+	return offset
+}
+
+func (x *ServerAuthDataResponse) fastWriteField4(buf []byte) (offset int) {
 	if x.Username == "" {
 		return offset
 	}
-	offset += fastpb.WriteString(buf[offset:], 2, x.GetUsername())
+	offset += fastpb.WriteString(buf[offset:], 4, x.GetUsername())
+	return offset
+}
+
+func (x *ServerAuthDataResponse) fastWriteField5(buf []byte) (offset int) {
+	if x.Email == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 5, x.GetEmail())
 	return offset
 }
 
@@ -672,6 +740,9 @@ func (x *ServerAuthDataResponse) Size() (n int) {
 	}
 	n += x.sizeField1()
 	n += x.sizeField2()
+	n += x.sizeField3()
+	n += x.sizeField4()
+	n += x.sizeField5()
 	return n
 }
 
@@ -679,15 +750,39 @@ func (x *ServerAuthDataResponse) sizeField1() (n int) {
 	if x.Uid == 0 {
 		return n
 	}
-	n += fastpb.SizeUint32(1, x.GetUid())
+	n += fastpb.SizeUint64(1, x.GetUid())
 	return n
 }
 
 func (x *ServerAuthDataResponse) sizeField2() (n int) {
+	if x.CreatedAt == nil {
+		return n
+	}
+	n += fastpb.SizeMessage(2, x.GetCreatedAt())
+	return n
+}
+
+func (x *ServerAuthDataResponse) sizeField3() (n int) {
+	if x.UpdatedAt == nil {
+		return n
+	}
+	n += fastpb.SizeMessage(3, x.GetUpdatedAt())
+	return n
+}
+
+func (x *ServerAuthDataResponse) sizeField4() (n int) {
 	if x.Username == "" {
 		return n
 	}
-	n += fastpb.SizeString(2, x.GetUsername())
+	n += fastpb.SizeString(4, x.GetUsername())
+	return n
+}
+
+func (x *ServerAuthDataResponse) sizeField5() (n int) {
+	if x.Email == "" {
+		return n
+	}
+	n += fastpb.SizeString(5, x.GetEmail())
 	return n
 }
 
@@ -726,5 +821,10 @@ var fieldIDToName_AuthToken = map[int32]string{
 
 var fieldIDToName_ServerAuthDataResponse = map[int32]string{
 	1: "Uid",
-	2: "Username",
+	2: "CreatedAt",
+	3: "UpdatedAt",
+	4: "Username",
+	5: "Email",
 }
+
+var _ = timestamppb.File_google_protobuf_timestamp_proto

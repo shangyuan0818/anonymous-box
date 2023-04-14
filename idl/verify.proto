@@ -3,13 +3,10 @@ syntax = "proto3";
 package api;
 option go_package = "api";
 
+import "google/protobuf/empty.proto";
+
 message ApplyEmailVerifyRequest {
   string email = 1;
-}
-
-message ApplyEmailVerifyResponse {
-  string email = 1;
-  bool ok = 2;
 }
 
 message VerifyEmailRequest {
@@ -17,11 +14,7 @@ message VerifyEmailRequest {
   string code = 2;
 }
 
-message VerifyEmailResponse {
-  bool ok = 1;
-}
-
 service VerifyService {
-  rpc ApplyEmailVerify(ApplyEmailVerifyRequest) returns (ApplyEmailVerifyResponse);
-  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+  rpc ApplyEmailVerify(ApplyEmailVerifyRequest) returns (google.protobuf.Empty);
+  rpc VerifyEmail(VerifyEmailRequest) returns (google.protobuf.Empty);
 }

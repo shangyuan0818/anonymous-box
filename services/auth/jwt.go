@@ -3,12 +3,13 @@ package auth
 import (
 	"context"
 	"errors"
-	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
+
+	"github.com/star-horizon/anonymous-box-saas/database/model"
 )
 
 var (

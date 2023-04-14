@@ -10,6 +10,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/fx"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/star-horizon/anonymous-box-saas/database/dal"
 	"github.com/star-horizon/anonymous-box-saas/database/model"
@@ -37,7 +38,7 @@ func NewMailServiceImpl(impl MailServiceImpl) api.MailService {
 }
 
 // SendMail implements the MailServiceImpl interface.
-func (s *MailServiceImpl) SendMail(ctx context.Context, req *api.SendMailRequest) (*api.SendMailResponse, error) {
+func (s *MailServiceImpl) SendMail(ctx context.Context, req *api.SendMailRequest) (*emptypb.Empty, error) {
 	ctx, span := tracer.Start(ctx, "send-mail")
 	defer span.End()
 
@@ -95,7 +96,5 @@ func (s *MailServiceImpl) SendMail(ctx context.Context, req *api.SendMailRequest
 		return nil, err
 	}
 
-	return &api.SendMailResponse{
-		Success: true,
-	}, nil
+	return &emptypb.Empty{}, nil
 }

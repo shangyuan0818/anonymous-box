@@ -1,8 +1,9 @@
 package main
 
 import (
-	model2 "github.com/star-horizon/anonymous-box-saas/database/model"
 	"gorm.io/gen"
+
+	"github.com/star-horizon/anonymous-box-saas/database/model"
 )
 
 func main() {
@@ -11,7 +12,7 @@ func main() {
 		Mode:    gen.WithQueryInterface,
 	})
 
-	g.ApplyBasic(model2.User{}, model2.Setting{})
+	g.ApplyBasic(model.User{}, model.Setting{})
 
 	g.Execute()
 }

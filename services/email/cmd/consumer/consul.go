@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
 
 	consulapi "github.com/hashicorp/consul/api"
+	"github.com/sirupsen/logrus"
 	"go.uber.org/fx"
 
 	"github.com/star-horizon/anonymous-box-saas/pkg/util"

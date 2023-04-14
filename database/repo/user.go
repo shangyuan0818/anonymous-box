@@ -3,11 +3,11 @@ package repo
 import (
 	"context"
 	"fmt"
-	"github.com/star-horizon/anonymous-box-saas/database/dal"
-	"github.com/star-horizon/anonymous-box-saas/database/model"
 
 	"go.uber.org/fx"
 
+	"github.com/star-horizon/anonymous-box-saas/database/dal"
+	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 )
 
@@ -36,7 +36,7 @@ func (r *userRepo) GetByID(ctx context.Context, id uint) (*model.User, error) {
 	ctx, span := tracer.Start(ctx, "get-user-by-id")
 	defer span.End()
 
-	if v, exist := r.Cache.Get(ctx, fmt.Sprint("database::user::", id)); exist {
+	if v, exist := r.Cache.Get(ctx, fmt.Sprint("database:user:", id)); exist {
 		if user, ok := v.(model.User); ok {
 			return &user, nil
 		}
@@ -47,7 +47,7 @@ func (r *userRepo) GetByID(ctx context.Context, id uint) (*model.User, error) {
 		return nil, err
 	}
 
-	_ = r.Cache.Set(ctx, fmt.Sprint("database::user::", id), *user, 0)
+	_ = r.Cache.Set(ctx, fmt.Sprint("database:user:", id), *user, 0)
 
 	return user, nil
 }
@@ -91,7 +91,7 @@ func (r *userRepo) Update(ctx context.Context, user *model.User) error {
 	ctx, span := tracer.Start(ctx, "update-user")
 	defer span.End()
 
-	if err := r.Cache.Delete(ctx, fmt.Sprint("database::user::", user.ID)); err != nil {
+	if err := r.Cache.Delete(ctx, fmt.Sprint("database:user:", user.ID)); err != nil {
 		return err
 	}
 
@@ -107,7 +107,7 @@ func (r *userRepo) Delete(ctx context.Context, id uint) error {
 	ctx, span := tracer.Start(ctx, "delete-user")
 	defer span.End()
 
-	if err := r.Cache.Delete(ctx, fmt.Sprint("database::user::", id)); err != nil {
+	if err := r.Cache.Delete(ctx, fmt.Sprint("database:user:", id)); err != nil {
 		return err
 	}
 

@@ -5,6 +5,7 @@ package api
 import (
 	fmt "fmt"
 	fastpb "github.com/cloudwego/fastpb"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 var (
@@ -69,31 +70,6 @@ func (x *SendMailRequest) fastReadField3(buf []byte, _type int8) (offset int, er
 
 func (x *SendMailRequest) fastReadField4(buf []byte, _type int8) (offset int, err error) {
 	x.Body, offset, err = fastpb.ReadString(buf, _type)
-	return offset, err
-}
-
-func (x *SendMailResponse) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
-	switch number {
-	case 1:
-		offset, err = x.fastReadField1(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	default:
-		offset, err = fastpb.Skip(buf, _type, number)
-		if err != nil {
-			goto SkipFieldError
-		}
-	}
-	return offset, nil
-SkipFieldError:
-	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
-ReadFieldError:
-	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_SendMailResponse[number], err)
-}
-
-func (x *SendMailResponse) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Success, offset, err = fastpb.ReadBool(buf, _type)
 	return offset, err
 }
 
@@ -215,22 +191,6 @@ func (x *SendMailRequest) fastWriteField4(buf []byte) (offset int) {
 	return offset
 }
 
-func (x *SendMailResponse) FastWrite(buf []byte) (offset int) {
-	if x == nil {
-		return offset
-	}
-	offset += x.fastWriteField1(buf[offset:])
-	return offset
-}
-
-func (x *SendMailResponse) fastWriteField1(buf []byte) (offset int) {
-	if !x.Success {
-		return offset
-	}
-	offset += fastpb.WriteBool(buf[offset:], 1, x.GetSuccess())
-	return offset
-}
-
 func (x *EmailMessage) FastWrite(buf []byte) (offset int) {
 	if x == nil {
 		return offset
@@ -335,22 +295,6 @@ func (x *SendMailRequest) sizeField4() (n int) {
 	return n
 }
 
-func (x *SendMailResponse) Size() (n int) {
-	if x == nil {
-		return n
-	}
-	n += x.sizeField1()
-	return n
-}
-
-func (x *SendMailResponse) sizeField1() (n int) {
-	if !x.Success {
-		return n
-	}
-	n += fastpb.SizeBool(1, x.GetSuccess())
-	return n
-}
-
 func (x *EmailMessage) Size() (n int) {
 	if x == nil {
 		return n
@@ -419,10 +363,6 @@ var fieldIDToName_SendMailRequest = map[int32]string{
 	4: "Body",
 }
 
-var fieldIDToName_SendMailResponse = map[int32]string{
-	1: "Success",
-}
-
 var fieldIDToName_EmailMessage = map[int32]string{
 	1: "To",
 	2: "ContentType",
@@ -431,3 +371,5 @@ var fieldIDToName_EmailMessage = map[int32]string{
 	5: "From",
 	6: "ReplyTo",
 }
+
+var _ = emptypb.File_google_protobuf_empty_proto
