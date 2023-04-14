@@ -7,3 +7,9 @@ kitex-gen:
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/auth.proto
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/email.proto
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/verify.proto
+
+gen:
+	@echo "Generating..."
+	@make gorm-gen
+	@make kitex-gen
+	@echo "Done."

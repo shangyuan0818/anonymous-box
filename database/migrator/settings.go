@@ -15,6 +15,8 @@ var defaultSettings = []model.Setting{
 
 	{Name: "auth_jwt_secret", Value: "secret", Type: model.SettingTypeAuth},
 	{Name: "auth_jwt_expires", Value: "3600", Type: model.SettingTypeAuth},
+	{Name: "auth_allow_register", Value: "true", Type: model.SettingTypeAuth},
+	{Name: "auth_require_email_verify", Value: "true", Type: model.SettingTypeAuth},
 
 	{Name: "email_from_address", Value: "no-reply@localhost", Type: model.SettingTypeEmail},
 	{Name: "email_from_name", Value: "Anonymous Box", Type: model.SettingTypeEmail},

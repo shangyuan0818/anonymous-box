@@ -100,6 +100,7 @@ func (s *AuthServiceImpl) EmailAuth(ctx context.Context, req *api.EmailAuthReque
 
 var (
 	ErrInvalidVerificationCode = errors.New("invalid verification code")
+	ErrRegisterNotAllowed      = errors.New("register is not allowed")
 )
 
 // Register implements the AuthServiceImpl interface.
@@ -112,16 +113,28 @@ func (s *AuthServiceImpl) Register(ctx context.Context, req *api.RegisterRequest
 		"user.email":    req.GetEmail(),
 	})
 
-	// check verification code
-	if resp, err := s.VerifySvcClient.VerifyEmail(ctx, &verifyapi.VerifyEmailRequest{
-		Email: req.GetEmail(),
-		Code:  req.GetVerificationCode(),
-	}); err != nil {
-		logger.WithError(err).Error("verify email failed")
+	if allowRegister, err := s.SettingRepo.GetBoolByName(ctx, "auth_allow_register"); err != nil {
+		logger.WithError(err).Error("query setting failed")
 		return nil, err
-	} else if !resp.GetOk() {
-		logger.WithError(ErrInvalidVerificationCode).Error("verify email failed")
-		return nil, ErrInvalidVerificationCode
+	} else if !allowRegister {
+		return nil, ErrRegisterNotAllowed
+	}
+
+	// check verification code if require
+	if requireEmailVerify, err := s.SettingRepo.GetBoolByName(ctx, "auth_require_email_verify"); err != nil {
+		logger.WithError(err).Error("query setting failed")
+		return nil, err
+	} else if requireEmailVerify {
+		if resp, err := s.VerifySvcClient.VerifyEmail(ctx, &verifyapi.VerifyEmailRequest{
+			Email: req.GetEmail(),
+			Code:  req.GetVerificationCode(),
+		}); err != nil {
+			logger.WithError(err).Error("verify email failed, verify service error")
+			return nil, err
+		} else if !resp.GetOk() {
+			logger.WithError(ErrInvalidVerificationCode).Error("verify email failed, invalid verification status")
+			return nil, ErrInvalidVerificationCode
+		}
 	}
 
 	// hash password

@@ -4,24 +4,24 @@ package api;
 option go_package = "api";
 
 message ApplyEmailVerifyRequest {
-    string email = 1;
+  string email = 1;
 }
 
 message ApplyEmailVerifyResponse {
-    string email = 1;
-    bool ok = 2;
+  string email = 1;
+  bool ok = 2;
 }
 
 message VerifyEmailRequest {
-    string email = 1;
-    string code = 2;
+  string email = 1;
+  string code = 2;
 }
 
 message VerifyEmailResponse {
-    bool ok = 1;
+  bool ok = 1;
 }
 
 service VerifyService {
-    rpc ApplyEmailVerify(ApplyEmailVerifyRequest) returns (ApplyEmailVerifyResponse);
-    rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+  rpc ApplyEmailVerify(ApplyEmailVerifyRequest) returns (ApplyEmailVerifyResponse);
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
 }

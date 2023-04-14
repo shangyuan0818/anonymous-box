@@ -31,6 +31,7 @@ func NewVerifyServiceImpl(impl VerifyServiceImpl) api.VerifyService {
 
 var (
 	ErrVerifyCodeNotFound = errors.New("verify code not found")
+	ErrVerifyCodeInvalid  = errors.New("verify code invalid")
 )
 
 // VerifyEmail implements the VerifyServiceImpl interface.
@@ -48,7 +49,7 @@ func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *api.VerifyEmai
 	if v != req.GetCode() {
 		return &api.VerifyEmailResponse{
 			Ok: false,
-		}, ErrVerifyCodeNotFound
+		}, ErrVerifyCodeInvalid
 	}
 
 	return &api.VerifyEmailResponse{
