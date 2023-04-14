@@ -7,11 +7,11 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/mailservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 )
 
@@ -36,7 +36,7 @@ var (
 )
 
 // VerifyEmail implements the VerifyServiceImpl interface.
-func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *api.VerifyEmailRequest) (*emptypb.Empty, error) {
+func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *api.VerifyEmailRequest) (*base.Empty, error) {
 	ctx, span := tracer.Start(ctx, "verify-email")
 	defer span.End()
 
@@ -49,5 +49,5 @@ func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *api.VerifyEmai
 		return nil, ErrVerifyCodeInvalid
 	}
 
-	return &emptypb.Empty{}, nil
+	return &base.Empty{}, nil
 }

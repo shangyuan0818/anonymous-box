@@ -4,9 +4,13 @@ gorm-gen:
 
 kitex-gen:
 	@echo "Generating kitex idl..."
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/auth.proto
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/email.proto
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/verify.proto
+
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/base/timestamp.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/base/empty.proto
+
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/auth.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/email.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/verify.proto
 
 gen:
 	@echo "Generating..."

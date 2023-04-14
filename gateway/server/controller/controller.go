@@ -29,8 +29,7 @@ func BindRoutes(ctx context.Context, r *server.Hertz, svc Params) {
 	{
 		authService := api.Group("/auth")
 		{
-			authService.POST("/login/email", svc.Auth.EmailLogin)
-			authService.POST("/login/username", svc.Auth.UsernameLogin)
+			authService.POST("/login", svc.Auth.Login)
 			authService.POST("/register", svc.Auth.Register)
 			authService.POST("/change-password", middleware.JwtParser(true), svc.Auth.ChangePassword)
 			authService.POST("/reset-password", svc.Auth.ResetPassword)

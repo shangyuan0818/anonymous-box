@@ -9,8 +9,8 @@ import (
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
 	streaming "github.com/cloudwego/kitex/pkg/streaming"
 	api "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	base "github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
 	proto "google.golang.org/protobuf/proto"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 func serviceInfo() *kitex.ServiceInfo {
@@ -131,14 +131,14 @@ func (p *SendMailArgs) GetFirstArgument() interface{} {
 }
 
 type SendMailResult struct {
-	Success *emptypb.Empty
+	Success *base.Empty
 }
 
-var SendMailResult_Success_DEFAULT *emptypb.Empty
+var SendMailResult_Success_DEFAULT *base.Empty
 
 func (p *SendMailResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
 	if !p.IsSetSuccess() {
-		p.Success = new(emptypb.Empty)
+		p.Success = new(base.Empty)
 	}
 	return p.Success.FastRead(buf, _type, number)
 }
@@ -165,7 +165,7 @@ func (p *SendMailResult) Marshal(out []byte) ([]byte, error) {
 }
 
 func (p *SendMailResult) Unmarshal(in []byte) error {
-	msg := new(emptypb.Empty)
+	msg := new(base.Empty)
 	if err := proto.Unmarshal(in, msg); err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (p *SendMailResult) Unmarshal(in []byte) error {
 	return nil
 }
 
-func (p *SendMailResult) GetSuccess() *emptypb.Empty {
+func (p *SendMailResult) GetSuccess() *base.Empty {
 	if !p.IsSetSuccess() {
 		return SendMailResult_Success_DEFAULT
 	}
@@ -181,7 +181,7 @@ func (p *SendMailResult) GetSuccess() *emptypb.Empty {
 }
 
 func (p *SendMailResult) SetSuccess(x interface{}) {
-	p.Success = x.(*emptypb.Empty)
+	p.Success = x.(*base.Empty)
 }
 
 func (p *SendMailResult) IsSetSuccess() bool {
@@ -202,7 +202,7 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) SendMail(ctx context.Context, Req *api.SendMailRequest) (r *emptypb.Empty, err error) {
+func (p *kClient) SendMail(ctx context.Context, Req *api.SendMailRequest) (r *base.Empty, err error) {
 	var _args SendMailArgs
 	_args.Req = Req
 	var _result SendMailResult

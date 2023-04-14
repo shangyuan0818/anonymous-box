@@ -3,7 +3,7 @@ syntax = "proto3";
 package api;
 option go_package = "api";
 
-import "google/protobuf/empty.proto";
+import "idl/base/empty.proto";
 
 enum MailType {
   MAIL_TYPE_UNKNOWN = 0;
@@ -28,5 +28,5 @@ message EmailMessage {
 }
 
 service MailService {
-  rpc SendMail(SendMailRequest) returns (google.protobuf.Empty);
+  rpc SendMail(SendMailRequest) returns (base.Empty);
 }

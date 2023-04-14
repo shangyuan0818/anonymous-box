@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package base;
+option go_package = "base";
+
+message Timestamp {
+  sint64 seconds = 1;
+  sint32 nanos = 2;
+}

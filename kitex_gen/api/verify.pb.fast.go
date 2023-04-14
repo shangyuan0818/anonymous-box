@@ -5,7 +5,7 @@ package api
 import (
 	fmt "fmt"
 	fastpb "github.com/cloudwego/fastpb"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	base "github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
 )
 
 var (
@@ -164,4 +164,4 @@ var fieldIDToName_VerifyEmailRequest = map[int32]string{
 	2: "Code",
 }
 
-var _ = emptypb.File_google_protobuf_empty_proto
+var _ = base.File_idl_base_empty_proto

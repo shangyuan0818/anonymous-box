@@ -7,13 +7,13 @@ import (
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
 	api "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	base "github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
 )
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	ApplyEmailVerify(ctx context.Context, Req *api.ApplyEmailVerifyRequest, callOptions ...callopt.Option) (r *emptypb.Empty, err error)
-	VerifyEmail(ctx context.Context, Req *api.VerifyEmailRequest, callOptions ...callopt.Option) (r *emptypb.Empty, err error)
+	ApplyEmailVerify(ctx context.Context, Req *api.ApplyEmailVerifyRequest, callOptions ...callopt.Option) (r *base.Empty, err error)
+	VerifyEmail(ctx context.Context, Req *api.VerifyEmailRequest, callOptions ...callopt.Option) (r *base.Empty, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -45,12 +45,12 @@ type kVerifyServiceClient struct {
 	*kClient
 }
 
-func (p *kVerifyServiceClient) ApplyEmailVerify(ctx context.Context, Req *api.ApplyEmailVerifyRequest, callOptions ...callopt.Option) (r *emptypb.Empty, err error) {
+func (p *kVerifyServiceClient) ApplyEmailVerify(ctx context.Context, Req *api.ApplyEmailVerifyRequest, callOptions ...callopt.Option) (r *base.Empty, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ApplyEmailVerify(ctx, Req)
 }
 
-func (p *kVerifyServiceClient) VerifyEmail(ctx context.Context, Req *api.VerifyEmailRequest, callOptions ...callopt.Option) (r *emptypb.Empty, err error) {
+func (p *kVerifyServiceClient) VerifyEmail(ctx context.Context, Req *api.VerifyEmailRequest, callOptions ...callopt.Option) (r *base.Empty, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.VerifyEmail(ctx, Req)
 }

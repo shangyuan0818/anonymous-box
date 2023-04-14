@@ -22,8 +22,7 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	serviceName := "AuthService"
 	handlerType := (*api.AuthService)(nil)
 	methods := map[string]kitex.MethodInfo{
-		"UsernameAuth":      kitex.NewMethodInfo(usernameAuthHandler, newUsernameAuthArgs, newUsernameAuthResult, false),
-		"EmailAuth":         kitex.NewMethodInfo(emailAuthHandler, newEmailAuthArgs, newEmailAuthResult, false),
+		"Auth":              kitex.NewMethodInfo(authHandler, newAuthArgs, newAuthResult, false),
 		"Register":          kitex.NewMethodInfo(registerHandler, newRegisterArgs, newRegisterResult, false),
 		"ChangePassword":    kitex.NewMethodInfo(changePasswordHandler, newChangePasswordArgs, newChangePasswordResult, false),
 		"ResetPassword":     kitex.NewMethodInfo(resetPasswordHandler, newResetPasswordArgs, newResetPasswordResult, false),
@@ -43,73 +42,73 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	return svcInfo
 }
 
-func usernameAuthHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+func authHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	switch s := arg.(type) {
 	case *streaming.Args:
 		st := s.Stream
-		req := new(api.UsernameAuthRequest)
+		req := new(api.AuthRequest)
 		if err := st.RecvMsg(req); err != nil {
 			return err
 		}
-		resp, err := handler.(api.AuthService).UsernameAuth(ctx, req)
+		resp, err := handler.(api.AuthService).Auth(ctx, req)
 		if err != nil {
 			return err
 		}
 		if err := st.SendMsg(resp); err != nil {
 			return err
 		}
-	case *UsernameAuthArgs:
-		success, err := handler.(api.AuthService).UsernameAuth(ctx, s.Req)
+	case *AuthArgs:
+		success, err := handler.(api.AuthService).Auth(ctx, s.Req)
 		if err != nil {
 			return err
 		}
-		realResult := result.(*UsernameAuthResult)
+		realResult := result.(*AuthResult)
 		realResult.Success = success
 	}
 	return nil
 }
-func newUsernameAuthArgs() interface{} {
-	return &UsernameAuthArgs{}
+func newAuthArgs() interface{} {
+	return &AuthArgs{}
 }
 
-func newUsernameAuthResult() interface{} {
-	return &UsernameAuthResult{}
+func newAuthResult() interface{} {
+	return &AuthResult{}
 }
 
-type UsernameAuthArgs struct {
-	Req *api.UsernameAuthRequest
+type AuthArgs struct {
+	Req *api.AuthRequest
 }
 
-func (p *UsernameAuthArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+func (p *AuthArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
 	if !p.IsSetReq() {
-		p.Req = new(api.UsernameAuthRequest)
+		p.Req = new(api.AuthRequest)
 	}
 	return p.Req.FastRead(buf, _type, number)
 }
 
-func (p *UsernameAuthArgs) FastWrite(buf []byte) (n int) {
+func (p *AuthArgs) FastWrite(buf []byte) (n int) {
 	if !p.IsSetReq() {
 		return 0
 	}
 	return p.Req.FastWrite(buf)
 }
 
-func (p *UsernameAuthArgs) Size() (n int) {
+func (p *AuthArgs) Size() (n int) {
 	if !p.IsSetReq() {
 		return 0
 	}
 	return p.Req.Size()
 }
 
-func (p *UsernameAuthArgs) Marshal(out []byte) ([]byte, error) {
+func (p *AuthArgs) Marshal(out []byte) ([]byte, error) {
 	if !p.IsSetReq() {
-		return out, fmt.Errorf("No req in UsernameAuthArgs")
+		return out, fmt.Errorf("No req in AuthArgs")
 	}
 	return proto.Marshal(p.Req)
 }
 
-func (p *UsernameAuthArgs) Unmarshal(in []byte) error {
-	msg := new(api.UsernameAuthRequest)
+func (p *AuthArgs) Unmarshal(in []byte) error {
+	msg := new(api.AuthRequest)
 	if err := proto.Unmarshal(in, msg); err != nil {
 		return err
 	}
@@ -117,58 +116,58 @@ func (p *UsernameAuthArgs) Unmarshal(in []byte) error {
 	return nil
 }
 
-var UsernameAuthArgs_Req_DEFAULT *api.UsernameAuthRequest
+var AuthArgs_Req_DEFAULT *api.AuthRequest
 
-func (p *UsernameAuthArgs) GetReq() *api.UsernameAuthRequest {
+func (p *AuthArgs) GetReq() *api.AuthRequest {
 	if !p.IsSetReq() {
-		return UsernameAuthArgs_Req_DEFAULT
+		return AuthArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-func (p *UsernameAuthArgs) IsSetReq() bool {
+func (p *AuthArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UsernameAuthArgs) GetFirstArgument() interface{} {
+func (p *AuthArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-type UsernameAuthResult struct {
+type AuthResult struct {
 	Success *api.AuthToken
 }
 
-var UsernameAuthResult_Success_DEFAULT *api.AuthToken
+var AuthResult_Success_DEFAULT *api.AuthToken
 
-func (p *UsernameAuthResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+func (p *AuthResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
 	if !p.IsSetSuccess() {
 		p.Success = new(api.AuthToken)
 	}
 	return p.Success.FastRead(buf, _type, number)
 }
 
-func (p *UsernameAuthResult) FastWrite(buf []byte) (n int) {
+func (p *AuthResult) FastWrite(buf []byte) (n int) {
 	if !p.IsSetSuccess() {
 		return 0
 	}
 	return p.Success.FastWrite(buf)
 }
 
-func (p *UsernameAuthResult) Size() (n int) {
+func (p *AuthResult) Size() (n int) {
 	if !p.IsSetSuccess() {
 		return 0
 	}
 	return p.Success.Size()
 }
 
-func (p *UsernameAuthResult) Marshal(out []byte) ([]byte, error) {
+func (p *AuthResult) Marshal(out []byte) ([]byte, error) {
 	if !p.IsSetSuccess() {
-		return out, fmt.Errorf("No req in UsernameAuthResult")
+		return out, fmt.Errorf("No req in AuthResult")
 	}
 	return proto.Marshal(p.Success)
 }
 
-func (p *UsernameAuthResult) Unmarshal(in []byte) error {
+func (p *AuthResult) Unmarshal(in []byte) error {
 	msg := new(api.AuthToken)
 	if err := proto.Unmarshal(in, msg); err != nil {
 		return err
@@ -177,175 +176,22 @@ func (p *UsernameAuthResult) Unmarshal(in []byte) error {
 	return nil
 }
 
-func (p *UsernameAuthResult) GetSuccess() *api.AuthToken {
+func (p *AuthResult) GetSuccess() *api.AuthToken {
 	if !p.IsSetSuccess() {
-		return UsernameAuthResult_Success_DEFAULT
+		return AuthResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-func (p *UsernameAuthResult) SetSuccess(x interface{}) {
+func (p *AuthResult) SetSuccess(x interface{}) {
 	p.Success = x.(*api.AuthToken)
 }
 
-func (p *UsernameAuthResult) IsSetSuccess() bool {
+func (p *AuthResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UsernameAuthResult) GetResult() interface{} {
-	return p.Success
-}
-
-func emailAuthHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	switch s := arg.(type) {
-	case *streaming.Args:
-		st := s.Stream
-		req := new(api.EmailAuthRequest)
-		if err := st.RecvMsg(req); err != nil {
-			return err
-		}
-		resp, err := handler.(api.AuthService).EmailAuth(ctx, req)
-		if err != nil {
-			return err
-		}
-		if err := st.SendMsg(resp); err != nil {
-			return err
-		}
-	case *EmailAuthArgs:
-		success, err := handler.(api.AuthService).EmailAuth(ctx, s.Req)
-		if err != nil {
-			return err
-		}
-		realResult := result.(*EmailAuthResult)
-		realResult.Success = success
-	}
-	return nil
-}
-func newEmailAuthArgs() interface{} {
-	return &EmailAuthArgs{}
-}
-
-func newEmailAuthResult() interface{} {
-	return &EmailAuthResult{}
-}
-
-type EmailAuthArgs struct {
-	Req *api.EmailAuthRequest
-}
-
-func (p *EmailAuthArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
-	if !p.IsSetReq() {
-		p.Req = new(api.EmailAuthRequest)
-	}
-	return p.Req.FastRead(buf, _type, number)
-}
-
-func (p *EmailAuthArgs) FastWrite(buf []byte) (n int) {
-	if !p.IsSetReq() {
-		return 0
-	}
-	return p.Req.FastWrite(buf)
-}
-
-func (p *EmailAuthArgs) Size() (n int) {
-	if !p.IsSetReq() {
-		return 0
-	}
-	return p.Req.Size()
-}
-
-func (p *EmailAuthArgs) Marshal(out []byte) ([]byte, error) {
-	if !p.IsSetReq() {
-		return out, fmt.Errorf("No req in EmailAuthArgs")
-	}
-	return proto.Marshal(p.Req)
-}
-
-func (p *EmailAuthArgs) Unmarshal(in []byte) error {
-	msg := new(api.EmailAuthRequest)
-	if err := proto.Unmarshal(in, msg); err != nil {
-		return err
-	}
-	p.Req = msg
-	return nil
-}
-
-var EmailAuthArgs_Req_DEFAULT *api.EmailAuthRequest
-
-func (p *EmailAuthArgs) GetReq() *api.EmailAuthRequest {
-	if !p.IsSetReq() {
-		return EmailAuthArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-
-func (p *EmailAuthArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *EmailAuthArgs) GetFirstArgument() interface{} {
-	return p.Req
-}
-
-type EmailAuthResult struct {
-	Success *api.AuthToken
-}
-
-var EmailAuthResult_Success_DEFAULT *api.AuthToken
-
-func (p *EmailAuthResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
-	if !p.IsSetSuccess() {
-		p.Success = new(api.AuthToken)
-	}
-	return p.Success.FastRead(buf, _type, number)
-}
-
-func (p *EmailAuthResult) FastWrite(buf []byte) (n int) {
-	if !p.IsSetSuccess() {
-		return 0
-	}
-	return p.Success.FastWrite(buf)
-}
-
-func (p *EmailAuthResult) Size() (n int) {
-	if !p.IsSetSuccess() {
-		return 0
-	}
-	return p.Success.Size()
-}
-
-func (p *EmailAuthResult) Marshal(out []byte) ([]byte, error) {
-	if !p.IsSetSuccess() {
-		return out, fmt.Errorf("No req in EmailAuthResult")
-	}
-	return proto.Marshal(p.Success)
-}
-
-func (p *EmailAuthResult) Unmarshal(in []byte) error {
-	msg := new(api.AuthToken)
-	if err := proto.Unmarshal(in, msg); err != nil {
-		return err
-	}
-	p.Success = msg
-	return nil
-}
-
-func (p *EmailAuthResult) GetSuccess() *api.AuthToken {
-	if !p.IsSetSuccess() {
-		return EmailAuthResult_Success_DEFAULT
-	}
-	return p.Success
-}
-
-func (p *EmailAuthResult) SetSuccess(x interface{}) {
-	p.Success = x.(*api.AuthToken)
-}
-
-func (p *EmailAuthResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *EmailAuthResult) GetResult() interface{} {
+func (p *AuthResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -971,21 +817,11 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) UsernameAuth(ctx context.Context, Req *api.UsernameAuthRequest) (r *api.AuthToken, err error) {
-	var _args UsernameAuthArgs
+func (p *kClient) Auth(ctx context.Context, Req *api.AuthRequest) (r *api.AuthToken, err error) {
+	var _args AuthArgs
 	_args.Req = Req
-	var _result UsernameAuthResult
-	if err = p.c.Call(ctx, "UsernameAuth", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) EmailAuth(ctx context.Context, Req *api.EmailAuthRequest) (r *api.AuthToken, err error) {
-	var _args EmailAuthArgs
-	_args.Req = Req
-	var _result EmailAuthResult
-	if err = p.c.Call(ctx, "EmailAuth", &_args, &_result); err != nil {
+	var _result AuthResult
+	if err = p.c.Call(ctx, "Auth", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

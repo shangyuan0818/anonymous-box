@@ -12,10 +12,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	emailapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
 	"github.com/star-horizon/anonymous-box-saas/pkg/util"
 )
 
@@ -50,7 +50,7 @@ var (
 )
 
 // ApplyEmailVerify implements the VerifyServiceImpl interface.
-func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.ApplyEmailVerifyRequest) (*emptypb.Empty, error) {
+func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.ApplyEmailVerifyRequest) (*base.Empty, error) {
 	ctx, span := tracer.Start(ctx, "apply-email-verify", trace.WithAttributes(
 		attribute.String("params.email", req.GetEmail()),
 	))
@@ -112,5 +112,5 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 		return nil, err
 	}
 
-	return &emptypb.Empty{}, nil
+	return &base.Empty{}, nil
 }

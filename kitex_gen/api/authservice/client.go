@@ -11,8 +11,7 @@ import (
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	UsernameAuth(ctx context.Context, Req *api.UsernameAuthRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error)
-	EmailAuth(ctx context.Context, Req *api.EmailAuthRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error)
+	Auth(ctx context.Context, Req *api.AuthRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error)
 	Register(ctx context.Context, Req *api.RegisterRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error)
 	ChangePassword(ctx context.Context, Req *api.ChangePasswordRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error)
 	ResetPassword(ctx context.Context, Req *api.ResetPasswordRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error)
@@ -48,14 +47,9 @@ type kAuthServiceClient struct {
 	*kClient
 }
 
-func (p *kAuthServiceClient) UsernameAuth(ctx context.Context, Req *api.UsernameAuthRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error) {
+func (p *kAuthServiceClient) Auth(ctx context.Context, Req *api.AuthRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UsernameAuth(ctx, Req)
-}
-
-func (p *kAuthServiceClient) EmailAuth(ctx context.Context, Req *api.EmailAuthRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.EmailAuth(ctx, Req)
+	return p.kClient.Auth(ctx, Req)
 }
 
 func (p *kAuthServiceClient) Register(ctx context.Context, Req *api.RegisterRequest, callOptions ...callopt.Option) (r *api.AuthToken, err error) {

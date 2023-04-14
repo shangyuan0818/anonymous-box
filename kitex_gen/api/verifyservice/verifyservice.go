@@ -9,8 +9,8 @@ import (
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
 	streaming "github.com/cloudwego/kitex/pkg/streaming"
 	api "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	base "github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
 	proto "google.golang.org/protobuf/proto"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 func serviceInfo() *kitex.ServiceInfo {
@@ -132,14 +132,14 @@ func (p *ApplyEmailVerifyArgs) GetFirstArgument() interface{} {
 }
 
 type ApplyEmailVerifyResult struct {
-	Success *emptypb.Empty
+	Success *base.Empty
 }
 
-var ApplyEmailVerifyResult_Success_DEFAULT *emptypb.Empty
+var ApplyEmailVerifyResult_Success_DEFAULT *base.Empty
 
 func (p *ApplyEmailVerifyResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
 	if !p.IsSetSuccess() {
-		p.Success = new(emptypb.Empty)
+		p.Success = new(base.Empty)
 	}
 	return p.Success.FastRead(buf, _type, number)
 }
@@ -166,7 +166,7 @@ func (p *ApplyEmailVerifyResult) Marshal(out []byte) ([]byte, error) {
 }
 
 func (p *ApplyEmailVerifyResult) Unmarshal(in []byte) error {
-	msg := new(emptypb.Empty)
+	msg := new(base.Empty)
 	if err := proto.Unmarshal(in, msg); err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func (p *ApplyEmailVerifyResult) Unmarshal(in []byte) error {
 	return nil
 }
 
-func (p *ApplyEmailVerifyResult) GetSuccess() *emptypb.Empty {
+func (p *ApplyEmailVerifyResult) GetSuccess() *base.Empty {
 	if !p.IsSetSuccess() {
 		return ApplyEmailVerifyResult_Success_DEFAULT
 	}
@@ -182,7 +182,7 @@ func (p *ApplyEmailVerifyResult) GetSuccess() *emptypb.Empty {
 }
 
 func (p *ApplyEmailVerifyResult) SetSuccess(x interface{}) {
-	p.Success = x.(*emptypb.Empty)
+	p.Success = x.(*base.Empty)
 }
 
 func (p *ApplyEmailVerifyResult) IsSetSuccess() bool {
@@ -285,14 +285,14 @@ func (p *VerifyEmailArgs) GetFirstArgument() interface{} {
 }
 
 type VerifyEmailResult struct {
-	Success *emptypb.Empty
+	Success *base.Empty
 }
 
-var VerifyEmailResult_Success_DEFAULT *emptypb.Empty
+var VerifyEmailResult_Success_DEFAULT *base.Empty
 
 func (p *VerifyEmailResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
 	if !p.IsSetSuccess() {
-		p.Success = new(emptypb.Empty)
+		p.Success = new(base.Empty)
 	}
 	return p.Success.FastRead(buf, _type, number)
 }
@@ -319,7 +319,7 @@ func (p *VerifyEmailResult) Marshal(out []byte) ([]byte, error) {
 }
 
 func (p *VerifyEmailResult) Unmarshal(in []byte) error {
-	msg := new(emptypb.Empty)
+	msg := new(base.Empty)
 	if err := proto.Unmarshal(in, msg); err != nil {
 		return err
 	}
@@ -327,7 +327,7 @@ func (p *VerifyEmailResult) Unmarshal(in []byte) error {
 	return nil
 }
 
-func (p *VerifyEmailResult) GetSuccess() *emptypb.Empty {
+func (p *VerifyEmailResult) GetSuccess() *base.Empty {
 	if !p.IsSetSuccess() {
 		return VerifyEmailResult_Success_DEFAULT
 	}
@@ -335,7 +335,7 @@ func (p *VerifyEmailResult) GetSuccess() *emptypb.Empty {
 }
 
 func (p *VerifyEmailResult) SetSuccess(x interface{}) {
-	p.Success = x.(*emptypb.Empty)
+	p.Success = x.(*base.Empty)
 }
 
 func (p *VerifyEmailResult) IsSetSuccess() bool {
@@ -356,7 +356,7 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) ApplyEmailVerify(ctx context.Context, Req *api.ApplyEmailVerifyRequest) (r *emptypb.Empty, err error) {
+func (p *kClient) ApplyEmailVerify(ctx context.Context, Req *api.ApplyEmailVerifyRequest) (r *base.Empty, err error) {
 	var _args ApplyEmailVerifyArgs
 	_args.Req = Req
 	var _result ApplyEmailVerifyResult
@@ -366,7 +366,7 @@ func (p *kClient) ApplyEmailVerify(ctx context.Context, Req *api.ApplyEmailVerif
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) VerifyEmail(ctx context.Context, Req *api.VerifyEmailRequest) (r *emptypb.Empty, err error) {
+func (p *kClient) VerifyEmail(ctx context.Context, Req *api.VerifyEmailRequest) (r *base.Empty, err error) {
 	var _args VerifyEmailArgs
 	_args.Req = Req
 	var _result VerifyEmailResult
