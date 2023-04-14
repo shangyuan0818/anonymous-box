@@ -107,7 +107,19 @@ func RunConsumer(ctx context.Context, ch *amqp.Channel, lc fx.Lifecycle, setting
 							), trace.WithSpanKind(trace.SpanKindConsumer))
 							defer span.End()
 
-							// TODO: trace parent
+							// trace parent
+							if traceIdStr, ok := delivery.Headers["trace-id"].(string); ok {
+								logrus.WithContext(ctx).Tracef("get trace id: %s", traceIdStr)
+
+								traceId, err := trace.TraceIDFromHex(traceIdStr)
+								if err != nil {
+									logrus.WithContext(ctx).WithError(err).Error("get trace id failed")
+									delivery.Nack(false, false)
+									return
+								}
+
+								ctx = trace.ContextWithRemoteSpanContext(ctx, span.SpanContext().WithTraceID(traceId))
+							}
 
 							// parse gob
 							var email api.EmailMessage
