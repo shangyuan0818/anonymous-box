@@ -4,17 +4,17 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"github.com/star-horizon/anonymous-box-saas/database/model"
+	repo2 "github.com/star-horizon/anonymous-box-saas/database/repo"
 
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/star-horizon/anonymous-box-saas/internal/database/model"
-	"github.com/star-horizon/anonymous-box-saas/internal/database/repo"
-	"github.com/star-horizon/anonymous-box-saas/services/auth/kitex_gen/api"
-	verifyapi "github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api/verifyservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	verifyapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/verifyservice"
 )
 
 var tracer = otel.Tracer("auth-service")
@@ -22,8 +22,8 @@ var tracer = otel.Tracer("auth-service")
 // AuthServiceImpl implements the last service interface defined in the IDL.
 type AuthServiceImpl struct {
 	fx.In
-	SettingRepo     repo.SettingRepo
-	UserRepo        repo.UserRepo
+	SettingRepo     repo2.SettingRepo
+	UserRepo        repo2.UserRepo
 	VerifySvcClient verifyservice.Client
 }
 

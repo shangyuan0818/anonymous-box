@@ -2,21 +2,20 @@ package main
 
 import (
 	"context"
-	"encoding/gob"
 
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
-	"gopkg.in/mail.v2"
 
-	"github.com/star-horizon/anonymous-box-saas/internal"
-	"github.com/star-horizon/anonymous-box-saas/internal/database"
+	"github.com/star-horizon/anonymous-box-saas/database"
+	"github.com/star-horizon/anonymous-box-saas/internal/infra"
 	"github.com/star-horizon/anonymous-box-saas/internal/mq"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
+	"github.com/star-horizon/anonymous-box-saas/services/email"
 )
 
 const (
-	serviceName = "email-consumer"
+	serviceName = "email-service-consumer"
 )
 
 var (
@@ -29,19 +28,18 @@ func init() {
 	ctx, span := tracer.Start(ctx, "init")
 	defer span.End()
 
-	gob.Register(mail.Message{})
-
 	app = fx.New(
 		fx.Supply(
 			fx.Annotate(ctx, fx.As(new(context.Context))),
 			serviceName,
 		),
-		internal.InfraModule(),
+		infra.Module(),
 		redis.Module(),
 		fx.Provide(cache.NewRedisDriver),
 		database.Module(),
 		mq.Module(),
-		fx.Invoke(run),
+		fx.Invoke(email.RunConsumer),
+		fx.Invoke(register),
 	)
 }
 

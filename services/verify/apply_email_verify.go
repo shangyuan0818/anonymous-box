@@ -1,18 +1,20 @@
 package verify
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/samber/lo"
 	"strings"
-	"text/template"
+	"time"
 
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	emailapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	"github.com/star-horizon/anonymous-box-saas/pkg/util"
-	emailapi "github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api"
 )
 
 type VerifyEmailTemplate struct {
@@ -24,25 +26,6 @@ type VerifyEmailTemplate struct {
 	AppUrl         string
 }
 
-func (s *VerifyServiceImpl) renderEmailTemplate(ctx context.Context, raw string, tpl VerifyEmailTemplate) (string, error) {
-	ctx, span := tracer.Start(ctx, "render-email-template")
-	defer span.End()
-
-	buff := bytes.NewBuffer(nil)
-	t, err := template.New("email").Parse(raw)
-	if err != nil {
-		logrus.WithContext(ctx).WithError(err).Error("parse email template failed")
-		return "", err
-	}
-
-	if err := t.Execute(buff, &tpl); err != nil {
-		logrus.WithContext(ctx).WithError(err).Error("execute email template failed")
-		return "", err
-	}
-
-	return buff.String(), nil
-}
-
 // generateVerifyCode generates a random 6-digit number
 func (s *VerifyServiceImpl) generateVerifyCode(ctx context.Context, email string) (string, error) {
 	ctx, span := tracer.Start(ctx, "generate-verify-code")
@@ -51,7 +34,7 @@ func (s *VerifyServiceImpl) generateVerifyCode(ctx context.Context, email string
 	code := util.RandString(6)
 	code = strings.ToUpper(code)
 
-	if err := s.Cache.Set(ctx, fmt.Sprint("verify_service::email_verify_code::", email), code, 60*5); err != nil {
+	if err := s.Cache.Set(ctx, fmt.Sprint("verify_service::email_verify_code::", email), code, 5*time.Minute); err != nil {
 		return "", err
 	}
 
@@ -60,7 +43,9 @@ func (s *VerifyServiceImpl) generateVerifyCode(ctx context.Context, email string
 
 // ApplyEmailVerify implements the VerifyServiceImpl interface.
 func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.ApplyEmailVerifyRequest) (*api.ApplyEmailVerifyResponse, error) {
-	ctx, span := tracer.Start(ctx, "apply-email-verify")
+	ctx, span := tracer.Start(ctx, "apply-email-verify", trace.WithAttributes(
+		attribute.String("params.email", req.GetEmail()),
+	))
 	defer span.End()
 
 	logger := logrus.WithContext(ctx).WithField("params.email", req.GetEmail())
@@ -79,7 +64,8 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 		"app_name",
 		"app_description",
 		"app_url",
-		"email_verify_template",
+		"email_template_verify_code",
+		"email_template_verify_code_content_type",
 	})
 
 	code, err := s.generateVerifyCode(ctx, req.GetEmail())
@@ -91,7 +77,7 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 		}, err
 	}
 
-	content, err := s.renderEmailTemplate(ctx, settings["email_verify_template"], VerifyEmailTemplate{
+	content, err := util.RenderTemplate(settings["email_template_verify_code"], &VerifyEmailTemplate{
 		EmailAddress:   req.GetEmail(),
 		VerifyCode:     code,
 		AppName:        settings["app_name"],
@@ -108,7 +94,10 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 
 	// send email via email service api
 	if r, err := s.MailSvcClient.SendMail(ctx, &emailapi.SendMailRequest{
-		Type:    emailapi.MailType_MAIL_TYPE_HTML,
+		Type: lo.Switch[string, emailapi.MailType](settings["email_template_verify_code_content_type"]).
+			Case("text/plain", emailapi.MailType_MAIL_TYPE_TEXT).
+			Case("text/html", emailapi.MailType_MAIL_TYPE_HTML).
+			Default(emailapi.MailType_MAIL_TYPE_UNKNOWN),
 		To:      req.GetEmail(),
 		Subject: fmt.Sprintf("[%s] 验证你的电子邮件地址", appName),
 		Body:    content,

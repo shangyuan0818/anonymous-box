@@ -1,24 +1,27 @@
 package email
 
 import (
-	"bytes"
 	"context"
-	"encoding/gob"
-	"time"
+	"encoding/json"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/fx"
-	"gopkg.in/mail.v2"
 
-	"github.com/star-horizon/anonymous-box-saas/internal/database/dal"
-	"github.com/star-horizon/anonymous-box-saas/internal/database/model"
-	"github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/database/dal"
+	"github.com/star-horizon/anonymous-box-saas/database/model"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 )
 
 var tracer = otel.Tracer("email-service")
+
+const (
+	mqExchangeName = "email-exchange"
+	mqQueueName    = "email-queue"
+)
 
 // MailServiceImpl implements the last service interface defined in the IDL.
 type MailServiceImpl struct {
@@ -50,41 +53,42 @@ func (s *MailServiceImpl) SendMail(ctx context.Context, req *api.SendMailRequest
 		return setting.Name, setting.Value
 	})
 
-	m := mail.NewMessage(
-		mail.SetEncoding(mail.Base64),
-		mail.SetCharset("UTF-8"),
+	m := api.EmailMessage{
+		From:    settingMap["email_from_name"],
+		To:      req.GetTo(),
+		Subject: req.GetSubject(),
+		Body:    req.GetBody(),
+		ContentType: lo.Switch[api.MailType, string](req.GetType()).
+			Case(api.MailType_MAIL_TYPE_TEXT, "text/plain").
+			Case(api.MailType_MAIL_TYPE_HTML, "text/html").
+			Default("application/octet-stream"),
+	}
+	span.SetAttributes(
+		attribute.String("email.from", m.From),
+		attribute.String("email.to", m.To),
+		attribute.String("email.subject", m.Subject),
+		attribute.String("email.body", m.Body),
+		attribute.String("email.content_type", m.ContentType),
 	)
 
-	m.SetAddressHeader("From", settingMap["email_from"], settingMap["email_from_name"])
-	m.SetHeader("To", req.GetTo())
-	m.SetHeader("Subject", req.GetSubject())
-	switch req.Type {
-	case api.MailType_MAIL_TYPE_UNKNOWN:
-		m.SetBody("text/plain", req.GetBody())
-	case api.MailType_MAIL_TYPE_HTML:
-		m.SetBody("text/html", req.GetBody())
-	case api.MailType_MAIL_TYPE_TEXT:
-		m.SetBody("text/plain", req.GetBody())
-	}
-
-	buff := bytes.NewBuffer(nil)
-	if err := gob.NewEncoder(buff).Encode(m); err != nil {
-		logrus.WithContext(ctx).WithError(err).Error("encode mail message failed")
-		return &api.SendMailResponse{
-			Success: false,
-		}, err
+	data, err := json.Marshal(&m)
+	if err != nil {
+		logrus.WithContext(ctx).WithError(err).Error("marshal email message failed")
+		return nil, err
 	}
 
 	if err := s.MQ.PublishWithContext(
 		ctx,
-		"email",
+		mqExchangeName,
 		"email.send",
 		false,
 		false,
 		amqp.Publishing{
-			ContentType: "application/x-gob",
-			Body:        buff.Bytes(),
-			Timestamp:   time.Now(),
+			ContentType: "application/json",
+			Body:        data,
+			Headers: amqp.Table{
+				"trace-id": span.SpanContext().TraceID().String(),
+			},
 		},
 	); err != nil {
 		logrus.WithContext(ctx).WithError(err).Error("publish message failed")

@@ -5,7 +5,7 @@ import (
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/discovery"
-	"github.com/star-horizon/anonymous-box-saas/services/auth/kitex_gen/api/authservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/authservice"
 )
 
 // NewAuthServiceClient creates a new AuthServiceClient.

@@ -2,6 +2,8 @@ package logger
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	hertzlogrus "github.com/hertz-contrib/obs-opentelemetry/logging/logrus"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -40,6 +42,10 @@ func InitLogger(ctx context.Context) error {
 
 	l.SetLevel(level)
 	l.SetOutput(os.Stdout)
+
+	hlog.SetLogger(hertzlogrus.NewLogger(hertzlogrus.WithLogger(l)))
+
+	l.SetFormatter(&logrus.TextFormatter{})
 
 	return nil
 }

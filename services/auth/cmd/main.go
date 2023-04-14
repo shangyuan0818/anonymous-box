@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/star-horizon/anonymous-box-saas/database"
 
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"
@@ -9,13 +10,12 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
-	"github.com/star-horizon/anonymous-box-saas/internal"
-	"github.com/star-horizon/anonymous-box-saas/internal/database"
+	"github.com/star-horizon/anonymous-box-saas/internal/infra"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/authservice"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 	"github.com/star-horizon/anonymous-box-saas/services/auth"
-	"github.com/star-horizon/anonymous-box-saas/services/auth/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/services/auth/kitex_gen/api/authservice"
 	"github.com/star-horizon/anonymous-box-saas/services/verify"
 )
 
@@ -36,7 +36,7 @@ func init() {
 			fx.Annotate(ctx, fx.As(new(context.Context))),
 			serviceName,
 		),
-		internal.InfraModule(),
+		infra.Module(),
 		redis.Module(),
 		fx.Provide(cache.NewRedisDriver),
 		database.Module(),

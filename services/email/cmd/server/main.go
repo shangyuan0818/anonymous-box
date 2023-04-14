@@ -9,14 +9,14 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
-	"github.com/star-horizon/anonymous-box-saas/internal"
-	"github.com/star-horizon/anonymous-box-saas/internal/database"
+	"github.com/star-horizon/anonymous-box-saas/database"
+	"github.com/star-horizon/anonymous-box-saas/internal/infra"
 	"github.com/star-horizon/anonymous-box-saas/internal/mq"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/mailservice"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 	"github.com/star-horizon/anonymous-box-saas/services/email"
-	"github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/services/email/kitex_gen/api/mailservice"
 )
 
 const serviceName = "email-service"
@@ -36,7 +36,7 @@ func init() {
 			fx.Annotate(ctx, fx.As(new(context.Context))),
 			serviceName,
 		),
-		internal.InfraModule(),
+		infra.Module(),
 		redis.Module(),
 		fx.Provide(cache.NewRedisDriver),
 		database.Module(),

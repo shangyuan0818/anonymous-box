@@ -7,7 +7,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
-	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api/verifyservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/verifyservice"
 )
 
 var tracer = otel.Tracer("gateway-service.server.controller.verify")

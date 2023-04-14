@@ -25,22 +25,25 @@ func BindRoutes(ctx context.Context, r *server.Hertz, svc Params) {
 	ctx, span := tracer.Start(ctx, "bind-routes")
 	defer span.End()
 
-	authService := r.Group("/auth")
+	api := r.Group("/api/v1")
 	{
-		authService.POST("/login/email", svc.Auth.EmailLogin)
-		authService.POST("/login/username", svc.Auth.UsernameLogin)
-		authService.POST("/register", svc.Auth.Register)
-		authService.POST("/change-password", middleware.JwtParser(true), svc.Auth.ChangePassword)
-		authService.POST("/reset-password", svc.Auth.ResetPassword)
-	}
+		authService := api.Group("/auth")
+		{
+			authService.POST("/login/email", svc.Auth.EmailLogin)
+			authService.POST("/login/username", svc.Auth.UsernameLogin)
+			authService.POST("/register", svc.Auth.Register)
+			authService.POST("/change-password", middleware.JwtParser(true), svc.Auth.ChangePassword)
+			authService.POST("/reset-password", svc.Auth.ResetPassword)
+		}
 
-	verifyService := r.Group("/verify")
-	{
-		verifyService.POST("/email", svc.Verify.ApplyEmailVerify)
-	}
+		verifyService := api.Group("/verify")
+		{
+			verifyService.POST("/email", svc.Verify.ApplyEmailVerify)
+		}
 
-	gatewayService := r.Group("/gateway")
-	{
-		gatewayService.GET("/health", svc.Gateway.Health)
+		gatewayService := api.Group("/gateway")
+		{
+			gatewayService.GET("/health", svc.Gateway.Health)
+		}
 	}
 }

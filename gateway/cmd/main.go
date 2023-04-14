@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	hertzserver "github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
 	"github.com/star-horizon/anonymous-box-saas/gateway/server"
-	"github.com/star-horizon/anonymous-box-saas/internal"
+	"github.com/star-horizon/anonymous-box-saas/internal/infra"
+	"github.com/star-horizon/anonymous-box-saas/pkg/util"
 	"github.com/star-horizon/anonymous-box-saas/services/auth"
 	"github.com/star-horizon/anonymous-box-saas/services/verify"
 )
@@ -31,7 +35,7 @@ func init() {
 			fx.Annotate(ctx, fx.As(new(context.Context))),
 			serviceName,
 		),
-		internal.InfraModule(),
+		infra.Module(),
 		auth.Module(),   // use client
 		verify.Module(), // use client
 		server.Module(), // use controller
@@ -39,14 +43,41 @@ func init() {
 	)
 }
 
-func run(ctx context.Context, svr *hertzserver.Hertz, lc fx.Lifecycle) {
+func run(ctx context.Context, svr *hertzserver.Hertz, lc fx.Lifecycle) error {
 	ctx, span := tracer.Start(ctx, "run-gateway")
 	defer span.End()
 
+	opts := svr.GetOptions()
+
+	ip, err := util.GetLocalIP()
+	if err != nil {
+		logrus.WithContext(ctx).WithError(err).Fatal("get local ip error")
+		return err
+	}
+
+	opts.RegistryInfo.Addr = utils.NewNetAddr("tcp", fmt.Sprintf("%s:%d", ip, 8080))
+
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			ctx, span := tracer.Start(ctx, "start-gateway")
+			ctx, span := tracer.Start(ctx, "start-gateway-http")
 			defer span.End()
+
+			svr.OnRun = append(svr.OnRun, func(ctx context.Context) error {
+				ctx, span := tracer.Start(ctx, "gateway-http-registry-hook")
+				defer span.End()
+
+				go func() {
+					// delay register 5s
+					time.Sleep(5 * time.Second)
+					logrus.WithContext(ctx).Info("gateway server register")
+					if err := opts.Registry.Register(opts.RegistryInfo); err != nil {
+						logrus.WithContext(ctx).WithError(err).Fatal("gateway server register error")
+						return
+					}
+				}()
+
+				return nil
+			})
 
 			go func() {
 				if err := svr.Run(); err != nil {
@@ -57,16 +88,19 @@ func run(ctx context.Context, svr *hertzserver.Hertz, lc fx.Lifecycle) {
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			ctx, span := tracer.Start(ctx, "stop-gateway")
+			ctx, span := tracer.Start(ctx, "stop-gateway-http")
 			defer span.End()
 
 			if err := svr.Shutdown(ctx); err != nil {
+				logrus.WithContext(ctx).WithError(err).Error("gateway server shutdown error")
 				return err
 			}
 
 			return nil
 		},
 	})
+
+	return nil
 }
 
 func main() {

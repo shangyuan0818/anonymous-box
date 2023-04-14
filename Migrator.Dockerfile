@@ -6,7 +6,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /go/bin/migrator internal/database/migrator/*.go
+RUN go build -o /go/bin/migrator database/migrator/*.go
 
 FROM alpine:latest
 WORKDIR /data

@@ -7,7 +7,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
-	"github.com/star-horizon/anonymous-box-saas/services/auth/kitex_gen/api/authservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/authservice"
 )
 
 var tracer = otel.Tracer("gateway-service.server.controller.auth")

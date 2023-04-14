@@ -5,7 +5,7 @@ import (
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/discovery"
-	"github.com/star-horizon/anonymous-box-saas/services/verify/kitex_gen/api/verifyservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/verifyservice"
 )
 
 // NewVerifyServiceClient returns a new instance of the VerifyClient
