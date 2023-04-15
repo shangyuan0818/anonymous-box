@@ -7,7 +7,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/discovery"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/emailservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/emailservice"
 )
 
 // NewEmailServiceClient creates a new MailServiceClient.

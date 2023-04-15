@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package api.dash;
+option go_package = "dash";
+
+import "idl/base/empty.proto";
+
+message ApplyEmailVerifyRequest {
+  string email = 1;
+}
+
+message VerifyEmailRequest {
+  string email = 1;
+  string code = 2;
+}
+
+service VerifyService {
+  rpc ApplyEmailVerify(ApplyEmailVerifyRequest) returns (base.Empty);
+  rpc VerifyEmail(VerifyEmailRequest) returns (base.Empty);
+}

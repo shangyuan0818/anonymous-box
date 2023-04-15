@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/star-horizon/anonymous-box-saas/services/comment"
+	"github.com/star-horizon/anonymous-box-saas/services/website"
 	"time"
 
 	hertzserver "github.com/cloudwego/hertz/pkg/app/server"
@@ -36,9 +38,11 @@ func init() {
 			serviceName,
 		),
 		infra.Module(),
-		auth.Module(),   // use client
-		verify.Module(), // use client
-		server.Module(), // use controller
+		auth.Module(),    // use client
+		verify.Module(),  // use client
+		website.Module(), // use client
+		comment.Module(), // use client
+		server.Module(),  // use controller
 		fx.Invoke(run),
 	)
 }

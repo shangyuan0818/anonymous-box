@@ -22,6 +22,7 @@ require (
 	github.com/redis/go-redis/v9 v9.0.3
 	github.com/samber/lo v1.38.1
 	github.com/sirupsen/logrus v1.9.0
+	github.com/speps/go-hashids/v2 v2.0.1
 	github.com/stretchr/testify v1.8.2
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.1.21
 	github.com/uptrace/uptrace-go/extra/otellogrus v1.1.0
@@ -93,7 +94,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.0.2 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
-	github.com/speps/go-hashids/v2 v2.0.1 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

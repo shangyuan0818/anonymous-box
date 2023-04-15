@@ -10,8 +10,8 @@ import (
 	"go.opentelemetry.io/otel/codes"
 
 	"github.com/star-horizon/anonymous-box-saas/gateway/serializer"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/authservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/authservice"
 )
 
 func JwtParser() app.HandlerFunc {
@@ -47,7 +47,7 @@ func AuthDataParser(authClient authservice.Client) app.HandlerFunc {
 			attribute.String("token", token),
 		)
 
-		res, err := authClient.GetServerAuthData(ctx, &api.AuthToken{
+		res, err := authClient.GetServerAuthData(ctx, &dash.AuthToken{
 			Token: token,
 		})
 		if err != nil {

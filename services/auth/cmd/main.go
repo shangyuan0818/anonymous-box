@@ -13,8 +13,8 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/database"
 	"github.com/star-horizon/anonymous-box-saas/internal/infra"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/authservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/authservice"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 	"github.com/star-horizon/anonymous-box-saas/services/auth"
 	"github.com/star-horizon/anonymous-box-saas/services/verify"
@@ -47,7 +47,7 @@ func init() {
 	)
 }
 
-func run(ctx context.Context, svc api.AuthService, lc fx.Lifecycle, r registry.Registry) {
+func run(ctx context.Context, svc dash.AuthService, lc fx.Lifecycle, r registry.Registry) {
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 

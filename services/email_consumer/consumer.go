@@ -16,7 +16,7 @@ import (
 
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/internal/config"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
 )
 
 type mailEnv struct {
@@ -121,7 +121,7 @@ func RunConsumer(ctx context.Context, ch *amqp.Channel, lc fx.Lifecycle, setting
 							}
 
 							// parse gob
-							var email api.EmailMessage
+							var email dash.EmailMessage
 							switch delivery.ContentType {
 							case "application/json", "application/x-json":
 								if err := json.Unmarshal(delivery.Body, &email); err != nil {

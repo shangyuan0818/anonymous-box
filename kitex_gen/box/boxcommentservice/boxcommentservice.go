@@ -26,7 +26,7 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"ListComments": kitex.NewMethodInfo(listCommentsHandler, newListCommentsArgs, newListCommentsResult, false),
 	}
 	extra := map[string]interface{}{
-		"PackageName": "box",
+		"PackageName": "api.box",
 	}
 	svcInfo := &kitex.ServiceInfo{
 		ServiceName:     serviceName,

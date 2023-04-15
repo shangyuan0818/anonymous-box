@@ -6,5 +6,6 @@ func Module() fx.Option {
 	return fx.Module(
 		ServiceName,
 		fx.Provide(NewWebsiteService),
+		fx.Provide(NewWebsiteServiceClient),
 	)
 }

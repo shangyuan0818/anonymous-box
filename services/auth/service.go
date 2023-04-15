@@ -13,10 +13,10 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/internal/jwt"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	verifyapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/verifyservice"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	verifyapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/verifyservice"
 )
 
 var tracer = otel.Tracer("auth-service")
@@ -33,12 +33,12 @@ type AuthServiceImpl struct {
 }
 
 // NewAuthServiceImpl creates a new AuthServiceImpl.
-func NewAuthServiceImpl(impl AuthServiceImpl) api.AuthService {
+func NewAuthServiceImpl(impl AuthServiceImpl) dash.AuthService {
 	return &impl
 }
 
-// UsernameLogin implements the api.AuthService interface.
-func (s *AuthServiceImpl) UsernameLogin(ctx context.Context, req *api.UsernameLoginRequest) (*api.AuthToken, error) {
+// UsernameLogin implements the dash.AuthService interface.
+func (s *AuthServiceImpl) UsernameLogin(ctx context.Context, req *dash.UsernameLoginRequest) (*dash.AuthToken, error) {
 	ctx, span := tracer.Start(ctx, "username-auth")
 	defer span.End()
 
@@ -63,13 +63,13 @@ func (s *AuthServiceImpl) UsernameLogin(ctx context.Context, req *api.UsernameLo
 		return nil, err
 	}
 
-	return &api.AuthToken{
+	return &dash.AuthToken{
 		Token: tokenString,
 	}, nil
 }
 
-// EmailLogin implements the api.AuthService interface.
-func (s *AuthServiceImpl) EmailLogin(ctx context.Context, req *api.EmailLoginRequest) (*api.AuthToken, error) {
+// EmailLogin implements the dash.AuthService interface.
+func (s *AuthServiceImpl) EmailLogin(ctx context.Context, req *dash.EmailLoginRequest) (*dash.AuthToken, error) {
 	ctx, span := tracer.Start(ctx, "username-auth")
 	defer span.End()
 
@@ -95,7 +95,7 @@ func (s *AuthServiceImpl) EmailLogin(ctx context.Context, req *api.EmailLoginReq
 		return nil, err
 	}
 
-	return &api.AuthToken{
+	return &dash.AuthToken{
 		Token: tokenString,
 	}, nil
 }
@@ -104,8 +104,8 @@ var (
 	ErrRegisterNotAllowed = errors.New("register is not allowed")
 )
 
-// Register implements the api.AuthService interface.
-func (s *AuthServiceImpl) Register(ctx context.Context, req *api.RegisterRequest) (*api.AuthToken, error) {
+// Register implements the dash.AuthService interface.
+func (s *AuthServiceImpl) Register(ctx context.Context, req *dash.RegisterRequest) (*dash.AuthToken, error) {
 	ctx, span := tracer.Start(ctx, "register")
 	defer span.End()
 
@@ -160,7 +160,7 @@ func (s *AuthServiceImpl) Register(ctx context.Context, req *api.RegisterRequest
 		return nil, err
 	}
 
-	return &api.AuthToken{
+	return &dash.AuthToken{
 		Token: tokenString,
 	}, nil
 }
@@ -171,7 +171,7 @@ var (
 )
 
 // ChangePassword implements the AuthServiceImpl interface.
-func (s *AuthServiceImpl) ChangePassword(ctx context.Context, req *api.ChangePasswordRequest) (*api.AuthToken, error) {
+func (s *AuthServiceImpl) ChangePassword(ctx context.Context, req *dash.ChangePasswordRequest) (*dash.AuthToken, error) {
 	ctx, span := tracer.Start(ctx, "change-password")
 	defer span.End()
 
@@ -227,13 +227,13 @@ func (s *AuthServiceImpl) ChangePassword(ctx context.Context, req *api.ChangePas
 		return nil, err
 	}
 
-	return &api.AuthToken{
+	return &dash.AuthToken{
 		Token: tokenString,
 	}, nil
 }
 
 // ResetPassword implements the AuthServiceImpl interface.
-func (s *AuthServiceImpl) ResetPassword(ctx context.Context, req *api.ResetPasswordRequest) (*api.AuthToken, error) {
+func (s *AuthServiceImpl) ResetPassword(ctx context.Context, req *dash.ResetPasswordRequest) (*dash.AuthToken, error) {
 	ctx, span := tracer.Start(ctx, "reset-password")
 	defer span.End()
 
@@ -278,13 +278,13 @@ func (s *AuthServiceImpl) ResetPassword(ctx context.Context, req *api.ResetPassw
 		return nil, err
 	}
 
-	return &api.AuthToken{
+	return &dash.AuthToken{
 		Token: tokenString,
 	}, nil
 }
 
 // GetServerAuthData implements the AuthServiceImpl interface.
-func (s *AuthServiceImpl) GetServerAuthData(ctx context.Context, req *api.AuthToken) (*api.ServerAuthDataResponse, error) {
+func (s *AuthServiceImpl) GetServerAuthData(ctx context.Context, req *dash.AuthToken) (*dash.ServerAuthDataResponse, error) {
 	ctx, span := tracer.Start(ctx, "get-server-auth-data")
 	defer span.End()
 
@@ -301,7 +301,7 @@ func (s *AuthServiceImpl) GetServerAuthData(ctx context.Context, req *api.AuthTo
 		return nil, err
 	}
 
-	return &api.ServerAuthDataResponse{
+	return &dash.ServerAuthDataResponse{
 		Id: user.ID,
 		CreatedAt: &base.Timestamp{
 			Seconds: user.CreatedAt.Unix(),

@@ -25,7 +25,7 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"GetWebsite": kitex.NewMethodInfo(getWebsiteHandler, newGetWebsiteArgs, newGetWebsiteResult, false),
 	}
 	extra := map[string]interface{}{
-		"PackageName": "box",
+		"PackageName": "api.box",
 	}
 	svcInfo := &kitex.ServiceInfo{
 		ServiceName:     serviceName,

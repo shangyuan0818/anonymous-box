@@ -13,9 +13,9 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	emailapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	emailapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
 	"github.com/star-horizon/anonymous-box-saas/pkg/util"
 )
 
@@ -50,7 +50,7 @@ var (
 )
 
 // ApplyEmailVerify implements the VerifyServiceImpl interface.
-func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.ApplyEmailVerifyRequest) (*base.Empty, error) {
+func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *dash.ApplyEmailVerifyRequest) (*base.Empty, error) {
 	ctx, span := tracer.Start(ctx, "apply-email-verify", trace.WithAttributes(
 		attribute.String("params.email", req.GetEmail()),
 	))
@@ -97,7 +97,7 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 		return nil, err
 	}
 
-	// send email via email service api
+	// send email via email service dash
 	if _, err := s.EmailSvcClient.SendMail(ctx, &emailapi.SendMailRequest{
 		Type: lo.Switch[string, emailapi.MailType](settings["email_template_verify_code_content_type"]).
 			Case("text/plain", emailapi.MailType_MAIL_TYPE_TEXT).

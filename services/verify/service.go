@@ -9,9 +9,9 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/emailservice"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/emailservice"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 )
 
@@ -26,7 +26,7 @@ type VerifyServiceImpl struct {
 }
 
 // NewVerifyServiceImpl creates a new VerifyServiceImpl.
-func NewVerifyServiceImpl(impl VerifyServiceImpl) api.VerifyService {
+func NewVerifyServiceImpl(impl VerifyServiceImpl) dash.VerifyService {
 	return &impl
 }
 
@@ -36,7 +36,7 @@ var (
 )
 
 // VerifyEmail implements the VerifyServiceImpl interface.
-func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *api.VerifyEmailRequest) (*base.Empty, error) {
+func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *dash.VerifyEmailRequest) (*base.Empty, error) {
 	ctx, span := tracer.Start(ctx, "verify-email")
 	defer span.End()
 

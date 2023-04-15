@@ -9,14 +9,14 @@ kitex-gen:
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/base/empty.proto
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/base/pagination.proto
 
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/auth.proto
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/email.proto
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/verify.proto
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/website.proto
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/comment.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/dash/auth.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/dash/email.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/dash/verify.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/dash/website.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/dash/comment.proto
 
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/box/website.proto
-	@kitex -module github.com/star-horizon/anonymous-box-saas idl/box/comment.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/box/website.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/box/comment.proto
 
 gen:
 	@echo "Generating..."

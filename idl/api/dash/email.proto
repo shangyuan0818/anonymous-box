@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package api.dash;
+option go_package = "dash";
+
+import "idl/base/empty.proto";
+
+enum MailType {
+  MAIL_TYPE_UNKNOWN = 0;
+  MAIL_TYPE_TEXT = 1;
+  MAIL_TYPE_HTML = 2;
+}
+
+message SendMailRequest {
+  MailType type = 1; // text or html
+  string to = 2; // one email address
+  string subject = 3; // text
+  string body = 4; // html
+}
+
+message EmailMessage {
+  string to = 1;
+  string contentType = 2;
+  string subject = 3;
+  string body = 4;
+  string from = 5;
+  string replyTo = 6;
+}
+
+service EmailService {
+  rpc SendMail(SendMailRequest) returns (base.Empty);
+}
+
+service EmailServiceConsumer {
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/star-horizon/anonymous-box-saas/services/auth"
 
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"
@@ -14,8 +15,8 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/internal/infra"
 	"github.com/star-horizon/anonymous-box-saas/internal/mq"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/websiteservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/websiteservice"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 	"github.com/star-horizon/anonymous-box-saas/services/website"
 )
@@ -42,12 +43,13 @@ func init() {
 		fx.Provide(cache.NewRedisDriver),
 		database.Module(),
 		mq.Module(),
+		auth.Module(),
 		website.Module(),
 		fx.Invoke(run),
 	)
 }
 
-func run(ctx context.Context, lc fx.Lifecycle, svc api.WebsiteService, r registry.Registry) {
+func run(ctx context.Context, lc fx.Lifecycle, svc dash.WebsiteService, r registry.Registry) {
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 

@@ -2,17 +2,18 @@ package comment
 
 import (
 	"context"
+
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
-	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
+	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/internal/hashids"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/websiteservice"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/websiteservice"
 )
 
 var tracer = otel.Tracer(ServiceName)
@@ -28,12 +29,12 @@ type CommentServiceImpl struct {
 	HashidsSvc       hashids.Service
 }
 
-func NewCommentService(impl CommentServiceImpl) api.CommentService {
+func NewCommentService(impl CommentServiceImpl) dash.CommentService {
 	return &impl
 }
 
-// GetComment implements api.CommentService
-func (s *CommentServiceImpl) GetComment(ctx context.Context, req *api.GetCommentRequest) (*api.Comment, error) {
+// GetComment implements dash.CommentService
+func (s *CommentServiceImpl) GetComment(ctx context.Context, req *dash.GetCommentRequest) (*dash.Comment, error) {
 	ctx, span := tracer.Start(ctx, "get-comment")
 	defer span.End()
 
@@ -43,7 +44,7 @@ func (s *CommentServiceImpl) GetComment(ctx context.Context, req *api.GetComment
 		return nil, err
 	}
 
-	return &api.Comment{
+	return &dash.Comment{
 		Id:           req.GetId(),
 		WebsiteRefer: comment.WebsiteRefer,
 		Name:         lo.If(comment.Name.Valid, comment.Name.String).Else(""),
@@ -61,8 +62,8 @@ func (s *CommentServiceImpl) GetComment(ctx context.Context, req *api.GetComment
 	}, nil
 }
 
-// ListComments implements api.CommentService
-func (s *CommentServiceImpl) ListComments(ctx context.Context, req *api.ListCommentsRequest) (*api.ListCommentsResponse, error) {
+// ListComments implements dash.CommentService
+func (s *CommentServiceImpl) ListComments(ctx context.Context, req *dash.ListCommentsRequest) (*dash.ListCommentsResponse, error) {
 	ctx, span := tracer.Start(ctx, "list-comments")
 	defer span.End()
 
@@ -77,10 +78,10 @@ func (s *CommentServiceImpl) ListComments(ctx context.Context, req *api.ListComm
 		return nil, err
 	}
 
-	return &api.ListCommentsResponse{
+	return &dash.ListCommentsResponse{
 		Total: count,
-		Comments: lo.Map(comments, func(comment *model.Comment, _ int) *api.Comment {
-			return &api.Comment{
+		Comments: lo.Map(comments, func(comment *model.Comment, _ int) *dash.Comment {
+			return &dash.Comment{
 				Id:           comment.ID,
 				WebsiteRefer: comment.WebsiteRefer,
 				Name:         lo.If(comment.Name.Valid, comment.Name.String).Else(""),
@@ -100,8 +101,8 @@ func (s *CommentServiceImpl) ListComments(ctx context.Context, req *api.ListComm
 	}, nil
 }
 
-// DeleteComment implements api.CommentService
-func (s *CommentServiceImpl) DeleteComment(ctx context.Context, req *api.DeleteCommentRequest) (*base.Empty, error) {
+// DeleteComment implements dash.CommentService
+func (s *CommentServiceImpl) DeleteComment(ctx context.Context, req *dash.DeleteCommentRequest) (*base.Empty, error) {
 	ctx, span := tracer.Start(ctx, "delete-comment")
 	defer span.End()
 

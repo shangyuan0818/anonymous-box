@@ -13,8 +13,8 @@ import (
 
 	"github.com/star-horizon/anonymous-box-saas/database/dal"
 	"github.com/star-horizon/anonymous-box-saas/database/model"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
 	"github.com/star-horizon/anonymous-box-saas/services/email_consumer"
 )
 
@@ -31,12 +31,12 @@ type EmailServiceImpl struct {
 }
 
 // NewEmailServiceImpl creates a new EmailServiceImpl.
-func NewEmailServiceImpl(impl EmailServiceImpl) api.EmailService {
+func NewEmailServiceImpl(impl EmailServiceImpl) dash.EmailService {
 	return &impl
 }
 
 // SendMail implements the EmailServiceImpl interface.
-func (s *EmailServiceImpl) SendMail(ctx context.Context, req *api.SendMailRequest) (*base.Empty, error) {
+func (s *EmailServiceImpl) SendMail(ctx context.Context, req *dash.SendMailRequest) (*base.Empty, error) {
 	ctx, span := tracer.Start(ctx, "send-mail")
 	defer span.End()
 
@@ -52,14 +52,14 @@ func (s *EmailServiceImpl) SendMail(ctx context.Context, req *api.SendMailReques
 		return setting.Name, setting.Value
 	})
 
-	m := api.EmailMessage{
+	m := dash.EmailMessage{
 		From:    settingMap["email_from_name"],
 		To:      req.GetTo(),
 		Subject: req.GetSubject(),
 		Body:    req.GetBody(),
-		ContentType: lo.Switch[api.MailType, string](req.GetType()).
-			Case(api.MailType_MAIL_TYPE_TEXT, "text/plain").
-			Case(api.MailType_MAIL_TYPE_HTML, "text/html").
+		ContentType: lo.Switch[dash.MailType, string](req.GetType()).
+			Case(dash.MailType_MAIL_TYPE_TEXT, "text/plain").
+			Case(dash.MailType_MAIL_TYPE_HTML, "text/html").
 			Default("application/octet-stream"),
 	}
 	span.SetAttributes(

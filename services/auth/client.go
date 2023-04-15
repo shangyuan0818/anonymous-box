@@ -7,7 +7,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/discovery"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/authservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/authservice"
 )
 
 // NewAuthServiceClient creates a new AuthServiceClient.

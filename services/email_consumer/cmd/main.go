@@ -14,8 +14,8 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/internal/infra"
 	"github.com/star-horizon/anonymous-box-saas/internal/mq"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/emailserviceconsumer"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/emailserviceconsumer"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 	"github.com/star-horizon/anonymous-box-saas/services/email_consumer"
 )
@@ -48,7 +48,7 @@ func init() {
 	)
 }
 
-func run(ctx context.Context, lc fx.Lifecycle, svc api.EmailServiceConsumer, r registry.Registry) {
+func run(ctx context.Context, lc fx.Lifecycle, svc dash.EmailServiceConsumer, r registry.Registry) {
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 

@@ -3,8 +3,8 @@ package website
 import (
 	"context"
 	"errors"
-	"github.com/samber/lo"
 
+	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
@@ -12,9 +12,9 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/internal/hashids"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/authservice"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/authservice"
 )
 
 var tracer = otel.Tracer(ServiceName)
@@ -30,12 +30,12 @@ type WebsiteServiceImpl struct {
 	HashidsSvc    hashids.Service
 }
 
-func NewWebsiteService(impl WebsiteServiceImpl) api.WebsiteService {
+func NewWebsiteService(impl WebsiteServiceImpl) dash.WebsiteService {
 	return &impl
 }
 
-// CreateWebsite implements api.WebsiteService.CreateWebsite
-func (s *WebsiteServiceImpl) CreateWebsite(ctx context.Context, req *api.CreateWebsiteRequest) (*api.CreateWebsiteResponse, error) {
+// CreateWebsite implements dash.WebsiteService.CreateWebsite
+func (s *WebsiteServiceImpl) CreateWebsite(ctx context.Context, req *dash.CreateWebsiteRequest) (*dash.CreateWebsiteResponse, error) {
 	ctx, span := tracer.Start(ctx, "create-website")
 	defer span.End()
 
@@ -62,13 +62,13 @@ func (s *WebsiteServiceImpl) CreateWebsite(ctx context.Context, req *api.CreateW
 		return nil, err
 	}
 
-	return &api.CreateWebsiteResponse{
+	return &dash.CreateWebsiteResponse{
 		Key: userHash,
 	}, nil
 }
 
-// GetWebsite implements api.WebsiteService.GetWebsite
-func (s *WebsiteServiceImpl) GetWebsite(ctx context.Context, req *api.GetWebsiteRequest) (*api.GetWebsiteResponse, error) {
+// GetWebsite implements dash.WebsiteService.GetWebsite
+func (s *WebsiteServiceImpl) GetWebsite(ctx context.Context, req *dash.GetWebsiteRequest) (*dash.GetWebsiteResponse, error) {
 	ctx, span := tracer.Start(ctx, "get-website")
 	defer span.End()
 
@@ -78,7 +78,7 @@ func (s *WebsiteServiceImpl) GetWebsite(ctx context.Context, req *api.GetWebsite
 		return nil, err
 	}
 
-	return &api.GetWebsiteResponse{
+	return &dash.GetWebsiteResponse{
 		Id:             website.ID,
 		Key:            website.Key,
 		Name:           website.Name,
@@ -91,8 +91,8 @@ func (s *WebsiteServiceImpl) GetWebsite(ctx context.Context, req *api.GetWebsite
 	}, nil
 }
 
-// UpdateWebsite implements api.WebsiteService.UpdateWebsite
-func (s *WebsiteServiceImpl) UpdateWebsite(ctx context.Context, req *api.UpdateWebsiteRequest) (*base.Empty, error) {
+// UpdateWebsite implements dash.WebsiteService.UpdateWebsite
+func (s *WebsiteServiceImpl) UpdateWebsite(ctx context.Context, req *dash.UpdateWebsiteRequest) (*base.Empty, error) {
 	ctx, span := tracer.Start(ctx, "update-website")
 	defer span.End()
 
@@ -124,7 +124,7 @@ func (s *WebsiteServiceImpl) UpdateWebsite(ctx context.Context, req *api.UpdateW
 	return &base.Empty{}, nil
 }
 
-func (s *WebsiteServiceImpl) ListWebsites(ctx context.Context, req *api.ListWebsitesRequest) (*api.ListWebsitesResponse, error) {
+func (s *WebsiteServiceImpl) ListWebsites(ctx context.Context, req *dash.ListWebsitesRequest) (*dash.ListWebsitesResponse, error) {
 	ctx, span := tracer.Start(ctx, "list-websites")
 	defer span.End()
 
@@ -139,10 +139,10 @@ func (s *WebsiteServiceImpl) ListWebsites(ctx context.Context, req *api.ListWebs
 		return nil, err
 	}
 
-	return &api.ListWebsitesResponse{
+	return &dash.ListWebsitesResponse{
 		Total: count,
-		Websites: lo.Map(websites, func(website *model.Website, index int) *api.GetWebsiteResponse {
-			return &api.GetWebsiteResponse{
+		Websites: lo.Map(websites, func(website *model.Website, index int) *dash.GetWebsiteResponse {
+			return &dash.GetWebsiteResponse{
 				Id:             website.ID,
 				Key:            website.Key,
 				Name:           website.Name,

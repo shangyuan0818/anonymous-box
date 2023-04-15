@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package api.box;
+option go_package = "box";
+
+import "idl/base/timestamp.proto";
+import "idl/base/pagination.proto";
+
+message Comment {
+  string key = 1;
+  string website_key = 2;
+  string name = 3;
+  string email = 4;
+  string url = 5;
+  string content = 6;
+  base.Timestamp created_at = 7;
+  base.Timestamp updated_at = 8;
+}
+
+message ListCommentsRequest {
+  string website_key = 1;
+  base.Pagination pagination = 2;
+}
+
+message ListCommentsResponse {
+  sint64 total = 1;
+  repeated Comment comments = 2;
+}
+
+message GetCommentRequest {
+  string key = 1;
+}
+
+service BoxCommentService {
+  rpc GetComment(GetCommentRequest) returns (Comment);
+  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse);
+}
