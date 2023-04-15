@@ -15,12 +15,10 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/internal/mq"
 	"github.com/star-horizon/anonymous-box-saas/internal/redis"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/mailservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/emailservice"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 	"github.com/star-horizon/anonymous-box-saas/services/email"
 )
-
-const serviceName = "email-service"
 
 var (
 	ctx    = context.Background()
@@ -31,6 +29,8 @@ var (
 func init() {
 	ctx, span := tracer.Start(ctx, "init")
 	defer span.End()
+
+	serviceName := email.ServiceName
 
 	opts := []fx.Option{
 		fx.Supply(
@@ -49,15 +49,15 @@ func init() {
 	app = fx.New(opts...)
 }
 
-func run(ctx context.Context, lc fx.Lifecycle, svc api.MailService, r registry.Registry) {
+func run(ctx context.Context, lc fx.Lifecycle, svc api.EmailService, r registry.Registry) {
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 
-	svr := mailservice.NewServer(
+	svr := emailservice.NewServer(
 		svc,
 		server.WithRegistry(r),
 		server.WithRegistryInfo(&registry.Info{
-			ServiceName: serviceName,
+			ServiceName: email.ServiceName,
 		}),
 		server.WithSuite(tracing.NewServerSuite()),
 	)

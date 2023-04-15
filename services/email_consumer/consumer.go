@@ -1,10 +1,8 @@
-package email
+package email_consumer
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
-	"encoding/gob"
 	"encoding/json"
 	"fmt"
 
@@ -42,19 +40,19 @@ func RunConsumer(ctx context.Context, ch *amqp.Channel, lc fx.Lifecycle, setting
 	}
 
 	// declare exchange
-	if err := ch.ExchangeDeclare(mqExchangeName, "direct", true, false, false, false, nil); err != nil {
+	if err := ch.ExchangeDeclare(MQExchangeName, "direct", true, false, false, false, nil); err != nil {
 		logrus.WithContext(ctx).WithError(err).Fatal("declare exchange failed")
 		return err
 	}
 
 	// declare queue
-	queue, err := ch.QueueDeclare(mqQueueName, true, false, false, false, nil)
+	queue, err := ch.QueueDeclare(MQQueueName, true, false, false, false, nil)
 	if err != nil {
 		logrus.WithContext(ctx).WithError(err).Fatal("declare queue failed")
 		return err
 	}
 
-	if err := ch.QueueBind(queue.Name, "email.send", mqExchangeName, false, nil); err != nil {
+	if err := ch.QueueBind(queue.Name, MQKeyEmailSend, MQExchangeName, false, nil); err != nil {
 		logrus.WithContext(ctx).WithError(err).Fatal("bind queue failed")
 		return err
 	}
@@ -127,12 +125,6 @@ func RunConsumer(ctx context.Context, ch *amqp.Channel, lc fx.Lifecycle, setting
 							switch delivery.ContentType {
 							case "application/json", "application/x-json":
 								if err := json.Unmarshal(delivery.Body, &email); err != nil {
-									logrus.WithContext(ctx).WithError(err).Error("decode email failed")
-									delivery.Nack(false, false)
-									return
-								}
-							case "application/gob", "application/x-gob":
-								if err := gob.NewDecoder(bytes.NewReader(delivery.Body)).Decode(&email); err != nil {
 									logrus.WithContext(ctx).WithError(err).Error("decode email failed")
 									delivery.Nack(false, false)
 									return

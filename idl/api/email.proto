@@ -27,6 +27,9 @@ message EmailMessage {
   string replyTo = 6;
 }
 
-service MailService {
+service EmailService {
   rpc SendMail(SendMailRequest) returns (base.Empty);
+}
+
+service EmailServiceConsumer {
 }

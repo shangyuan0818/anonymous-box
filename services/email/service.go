@@ -15,30 +15,28 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
+	"github.com/star-horizon/anonymous-box-saas/services/email_consumer"
 )
 
-var tracer = otel.Tracer("email-service")
+var tracer = otel.Tracer(ServiceName)
 
-const (
-	mqExchangeName = "email-exchange"
-	mqQueueName    = "email-queue"
-)
+const ServiceName = "email-service"
 
-// MailServiceImpl implements the last service interface defined in the IDL.
-type MailServiceImpl struct {
+// EmailServiceImpl implements the last service interface defined in the IDL.
+type EmailServiceImpl struct {
 	fx.In
 
 	Q  *dal.Query
 	MQ *amqp.Channel
 }
 
-// NewMailServiceImpl creates a new MailServiceImpl.
-func NewMailServiceImpl(impl MailServiceImpl) api.MailService {
+// NewEmailServiceImpl creates a new EmailServiceImpl.
+func NewEmailServiceImpl(impl EmailServiceImpl) api.EmailService {
 	return &impl
 }
 
-// SendMail implements the MailServiceImpl interface.
-func (s *MailServiceImpl) SendMail(ctx context.Context, req *api.SendMailRequest) (*base.Empty, error) {
+// SendMail implements the EmailServiceImpl interface.
+func (s *EmailServiceImpl) SendMail(ctx context.Context, req *api.SendMailRequest) (*base.Empty, error) {
 	ctx, span := tracer.Start(ctx, "send-mail")
 	defer span.End()
 
@@ -80,8 +78,8 @@ func (s *MailServiceImpl) SendMail(ctx context.Context, req *api.SendMailRequest
 
 	if err := s.MQ.PublishWithContext(
 		ctx,
-		mqExchangeName,
-		"email.send",
+		email_consumer.MQExchangeName,
+		email_consumer.MQKeyEmailSend,
 		false,
 		false,
 		amqp.Publishing{
