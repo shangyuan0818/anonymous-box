@@ -17,12 +17,14 @@ func (ctr *Controller) Register(ctx context.Context, c *app.RequestContext) {
 	var payload authapi.RegisterRequest
 	if err := c.Bind(&payload); err != nil {
 		c.JSON(400, serializer.ResponseError(err))
+		span.RecordError(err)
 		return
 	}
 
 	resp, err := ctr.AuthSvcClient.Register(ctx, &payload)
 	if err != nil {
 		c.JSON(500, serializer.ResponseError(err))
+		span.RecordError(err)
 		return
 	}
 

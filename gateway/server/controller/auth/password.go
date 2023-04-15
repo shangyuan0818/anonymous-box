@@ -16,18 +16,15 @@ func (ctr *Controller) ChangePassword(ctx context.Context, c *app.RequestContext
 
 	var payload authapi.ChangePasswordRequest
 	if err := c.Bind(&payload); err != nil {
+		span.RecordError(err)
 		c.JSON(400, serializer.ResponseError(err))
 		return
 	}
-
-	token := c.GetString("token")
-	if token == "" {
-		c.JSON(401, serializer.ResponseErrorMsg("token is empty"))
-		return
-	}
+	payload.Token = c.GetString("token")
 
 	resp, err := ctr.AuthSvcClient.ChangePassword(ctx, &payload)
 	if err != nil {
+		span.RecordError(err)
 		c.JSON(500, serializer.ResponseError(err))
 		return
 	}

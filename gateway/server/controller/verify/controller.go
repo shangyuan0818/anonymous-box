@@ -18,7 +18,7 @@ type Controller struct {
 }
 
 type Service interface {
-	ApplyEmailVerify(ctx context.Context, c *app.RequestContext)
+	ApplyEmailVerify(ctx context.Context, c *app.RequestContext) // ApplyEmailVerify provides a method to apply email verify.
 }
 
 func NewController(impl Controller) Service {

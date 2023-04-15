@@ -11,7 +11,8 @@ type Response struct {
 }
 
 var (
-	ErrorUnauthorized = errors.New("unauthorized")
+	ErrorUnauthorized     = errors.New("unauthorized")
+	ErrorPermissionDenied = errors.New("permission denied")
 )
 
 func ResponseSuccess(data interface{}) Response {

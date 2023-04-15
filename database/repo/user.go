@@ -12,13 +12,13 @@ import (
 )
 
 type UserRepo interface {
-	GetByID(ctx context.Context, id uint) (*model.User, error)
+	GetByID(ctx context.Context, id uint64) (*model.User, error)
 	GetByUsername(ctx context.Context, username string) (*model.User, error)
 	GetByEmail(ctx context.Context, email string) (*model.User, error)
 
 	Create(ctx context.Context, user *model.User) error
 	Update(ctx context.Context, user *model.User) error
-	Delete(ctx context.Context, id uint) error
+	Delete(ctx context.Context, id uint64) error
 }
 
 type userRepo struct {
@@ -32,7 +32,7 @@ func NewUserRepo(repo userRepo) UserRepo {
 }
 
 // GetByID implements UserRepo.GetByID.
-func (r *userRepo) GetByID(ctx context.Context, id uint) (*model.User, error) {
+func (r *userRepo) GetByID(ctx context.Context, id uint64) (*model.User, error) {
 	ctx, span := tracer.Start(ctx, "get-user-by-id")
 	defer span.End()
 
@@ -42,7 +42,7 @@ func (r *userRepo) GetByID(ctx context.Context, id uint) (*model.User, error) {
 		}
 	}
 
-	user, err := r.Query.User.WithContext(ctx).Where(r.Query.User.ID.Eq(id)).First()
+	user, err := r.Query.User.WithContext(ctx).Where(r.Query.User.ID.Eq(uint(id))).First()
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (r *userRepo) Update(ctx context.Context, user *model.User) error {
 }
 
 // Delete implements UserRepo.Delete.
-func (r *userRepo) Delete(ctx context.Context, id uint) error {
+func (r *userRepo) Delete(ctx context.Context, id uint64) error {
 	ctx, span := tracer.Start(ctx, "delete-user")
 	defer span.End()
 
@@ -111,7 +111,7 @@ func (r *userRepo) Delete(ctx context.Context, id uint) error {
 		return err
 	}
 
-	if _, err := r.Query.User.WithContext(ctx).Where(r.Query.User.ID.Eq(id)).Delete(); err != nil {
+	if _, err := r.Query.User.WithContext(ctx).Where(r.Query.User.ID.Eq(uint(id))).Delete(); err != nil {
 		return err
 	}
 

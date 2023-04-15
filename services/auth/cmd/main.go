@@ -20,8 +20,6 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/services/verify"
 )
 
-const serviceName = "auth-service"
-
 var (
 	tracer = otel.Tracer("main")
 	ctx    = context.Background()
@@ -31,6 +29,8 @@ var (
 func init() {
 	ctx, span := tracer.Start(ctx, "init")
 	defer span.End()
+
+	serviceName := auth.ServiceName
 
 	app = fx.New(
 		fx.Supply(
@@ -55,7 +55,7 @@ func run(ctx context.Context, svc api.AuthService, lc fx.Lifecycle, r registry.R
 		svc,
 		server.WithRegistry(r),
 		server.WithRegistryInfo(&registry.Info{
-			ServiceName: serviceName,
+			ServiceName: auth.ServiceName,
 		}),
 		server.WithSuite(tracing.NewServerSuite()),
 	)

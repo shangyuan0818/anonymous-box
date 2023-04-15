@@ -98,7 +98,7 @@ func (s *VerifyServiceImpl) ApplyEmailVerify(ctx context.Context, req *api.Apply
 	}
 
 	// send email via email service api
-	if _, err := s.MailSvcClient.SendMail(ctx, &emailapi.SendMailRequest{
+	if _, err := s.EmailSvcClient.SendMail(ctx, &emailapi.SendMailRequest{
 		Type: lo.Switch[string, emailapi.MailType](settings["email_template_verify_code_content_type"]).
 			Case("text/plain", emailapi.MailType_MAIL_TYPE_TEXT).
 			Case("text/html", emailapi.MailType_MAIL_TYPE_HTML).

@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
+	"github.com/star-horizon/anonymous-box-saas/internal/jwt"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	verifyapi "github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/verifyservice"
@@ -21,12 +21,15 @@ import (
 
 var tracer = otel.Tracer("auth-service")
 
+const ServiceName = "auth-service"
+
 // AuthServiceImpl implements the last service interface defined in the IDL.
 type AuthServiceImpl struct {
 	fx.In
 	SettingRepo     repo.SettingRepo
 	UserRepo        repo.UserRepo
 	VerifySvcClient verifyservice.Client
+	JwtSvc          jwt.Service
 }
 
 // NewAuthServiceImpl creates a new AuthServiceImpl.
@@ -34,12 +37,8 @@ func NewAuthServiceImpl(impl AuthServiceImpl) api.AuthService {
 	return &impl
 }
 
-var (
-	ErrNoAuthCredential = errors.New("no auth credential")
-)
-
-// Auth implements the api.AuthService interface.
-func (s *AuthServiceImpl) Auth(ctx context.Context, req *api.AuthRequest) (*api.AuthToken, error) {
+// UsernameLogin implements the api.AuthService interface.
+func (s *AuthServiceImpl) UsernameLogin(ctx context.Context, req *api.UsernameLoginRequest) (*api.AuthToken, error) {
 	ctx, span := tracer.Start(ctx, "username-auth")
 	defer span.End()
 
@@ -47,18 +46,7 @@ func (s *AuthServiceImpl) Auth(ctx context.Context, req *api.AuthRequest) (*api.
 		"user.username": req.GetUsername(),
 	})
 
-	var (
-		user *model.User
-		err  error
-	)
-	switch true {
-	case lo.IsNotEmpty(req.GetUsername()):
-		user, err = s.UserRepo.GetByUsername(ctx, req.GetUsername())
-	case lo.IsNotEmpty(req.GetEmail()):
-		user, err = s.UserRepo.GetByEmail(ctx, req.GetEmail())
-	default:
-		return nil, ErrNoAuthCredential
-	}
+	user, err := s.UserRepo.GetByUsername(ctx, req.GetUsername())
 	if err != nil {
 		logger.WithError(err).Error("query user failed")
 		return nil, err
@@ -69,7 +57,39 @@ func (s *AuthServiceImpl) Auth(ctx context.Context, req *api.AuthRequest) (*api.
 		return nil, err
 	}
 
-	tokenString, err := s.signJwtToken(user)
+	tokenString, err := s.JwtSvc.GenerateToken(ctx, user.ID)
+	if err != nil {
+		logger.WithError(err).Error("sign token failed")
+		return nil, err
+	}
+
+	return &api.AuthToken{
+		Token: tokenString,
+	}, nil
+}
+
+// EmailLogin implements the api.AuthService interface.
+func (s *AuthServiceImpl) EmailLogin(ctx context.Context, req *api.EmailLoginRequest) (*api.AuthToken, error) {
+	ctx, span := tracer.Start(ctx, "username-auth")
+	defer span.End()
+
+	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
+		"user.email": req.GetEmail(),
+	})
+
+	user, err := s.UserRepo.GetByUsername(ctx, req.GetEmail())
+	if err != nil {
+		logger.WithError(err).Error("query user failed")
+		return nil, err
+	}
+
+	// compare password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.GetPassword())); err != nil {
+		logger.WithError(err).Error("password not match")
+		return nil, err
+	}
+
+	tokenString, err := s.JwtSvc.GenerateToken(ctx, user.ID)
 	if err != nil {
 		logger.WithError(err).Error("sign token failed")
 		return nil, err
@@ -134,7 +154,7 @@ func (s *AuthServiceImpl) Register(ctx context.Context, req *api.RegisterRequest
 	}
 
 	// sign token
-	tokenString, err := s.signJwtToken(user)
+	tokenString, err := s.JwtSvc.GenerateToken(ctx, user.ID)
 	if err != nil {
 		logger.WithError(err).Error("sign token failed")
 		return nil, err
@@ -156,9 +176,15 @@ func (s *AuthServiceImpl) ChangePassword(ctx context.Context, req *api.ChangePas
 	defer span.End()
 
 	// parse token
-	user, err := s.parseJwtToken(ctx, req.Token)
+	userId, err := s.JwtSvc.ParseToken(ctx, req.Token)
 	if err != nil {
 		logrus.WithContext(ctx).WithError(err).Error("parse token failed")
+		return nil, err
+	}
+
+	user, err := s.UserRepo.GetByID(ctx, userId)
+	if err != nil {
+		logrus.WithContext(ctx).WithError(err).Error("get user failed")
 		return nil, err
 	}
 
@@ -195,7 +221,7 @@ func (s *AuthServiceImpl) ChangePassword(ctx context.Context, req *api.ChangePas
 	}
 
 	// sign new token
-	tokenString, err := s.signJwtToken(user)
+	tokenString, err := s.JwtSvc.GenerateToken(ctx, user.ID)
 	if err != nil {
 		logger.WithError(err).Error("sign token failed")
 		return nil, err
@@ -246,7 +272,7 @@ func (s *AuthServiceImpl) ResetPassword(ctx context.Context, req *api.ResetPassw
 	}
 
 	// sign new token
-	tokenString, err := s.signJwtToken(user)
+	tokenString, err := s.JwtSvc.GenerateToken(ctx, user.ID)
 	if err != nil {
 		logger.WithError(err).Error("sign token failed")
 		return nil, err
@@ -263,14 +289,20 @@ func (s *AuthServiceImpl) GetServerAuthData(ctx context.Context, req *api.AuthTo
 	defer span.End()
 
 	// parse token
-	user, err := s.parseJwtToken(ctx, req.Token)
+	userId, err := s.JwtSvc.ParseToken(ctx, req.Token)
 	if err != nil {
 		logrus.WithContext(ctx).WithError(err).Error("parse token failed")
 		return nil, err
 	}
 
+	user, err := s.UserRepo.GetByID(ctx, userId)
+	if err != nil {
+		logrus.WithContext(ctx).WithError(err).Error("get user failed")
+		return nil, err
+	}
+
 	return &api.ServerAuthDataResponse{
-		Uid: user.ID,
+		Id: user.ID,
 		CreatedAt: &base.Timestamp{
 			Seconds: user.CreatedAt.Unix(),
 			Nanos:   int32(user.CreatedAt.Nanosecond()),

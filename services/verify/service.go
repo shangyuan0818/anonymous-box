@@ -10,7 +10,7 @@ import (
 
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/mailservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/emailservice"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 )
@@ -20,9 +20,9 @@ var tracer = otel.Tracer("verify-service")
 // VerifyServiceImpl implements the last service interface defined in the IDL.
 type VerifyServiceImpl struct {
 	fx.In
-	MailSvcClient mailservice.Client
-	SettingRepo   repo.SettingRepo
-	Cache         cache.Driver
+	EmailSvcClient emailservice.Client
+	SettingRepo    repo.SettingRepo
+	Cache          cache.Driver
 }
 
 // NewVerifyServiceImpl creates a new VerifyServiceImpl.

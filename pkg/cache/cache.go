@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var tracer = otel.Tracer("internal.cache")
+var tracer = otel.Tracer("cache")
 
 type Driver interface {
 	Get(ctx context.Context, key string) (any, bool)
