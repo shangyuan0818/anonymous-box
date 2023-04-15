@@ -10,7 +10,7 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/authservice"
 )
 
-var tracer = otel.Tracer("gateway-service.server.controller.auth")
+var tracer = otel.Tracer("gateway-service.server.controller.api.v1.auth")
 
 type Controller struct {
 	fx.In

@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package api;
+option go_package = "api";
+
+import "idl/base/empty.proto";
+import "idl/base/timestamp.proto";
+import "idl/base/pagination.proto";
+
+message Comment {
+  uint64 id = 1;
+  uint64 website_refer = 2;
+  string name = 3;
+  string email = 4;
+  string url = 5;
+  string content = 6;
+  base.Timestamp created_at = 7;
+  base.Timestamp updated_at = 8;
+}
+
+message ListCommentsRequest {
+  uint64 user_id = 1;
+  uint64 website_refer = 2;
+  base.Pagination pagination = 3;
+}
+
+message ListCommentsResponse {
+  sint64 total = 1;
+  repeated Comment comments = 2;
+}
+
+message GetCommentRequest {
+  uint64 user_id = 1;
+  uint64 id = 2;
+}
+
+message DeleteCommentRequest {
+  uint64 user_id = 1;
+  uint64 id = 2;
+}
+
+service CommentService {
+  rpc GetComment(GetCommentRequest) returns (Comment);
+  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse);
+  rpc DeleteComment(DeleteCommentRequest) returns (base.Empty);
+}

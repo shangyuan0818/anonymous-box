@@ -6,7 +6,6 @@ package dal
 
 import (
 	"context"
-	"github.com/star-horizon/anonymous-box-saas/database/model"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -16,6 +15,8 @@ import (
 	"gorm.io/gen/field"
 
 	"gorm.io/plugin/dbresolver"
+
+	"github.com/star-horizon/anonymous-box-saas/database/model"
 )
 
 func newUser(db *gorm.DB, opts ...gen.DOOption) user {
@@ -26,7 +27,7 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 
 	tableName := _user.userDo.TableName()
 	_user.ALL = field.NewAsterisk(tableName)
-	_user.ID = field.NewUint(tableName, "id")
+	_user.ID = field.NewUint64(tableName, "id")
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
 	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_user.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -43,7 +44,7 @@ type user struct {
 	userDo userDo
 
 	ALL       field.Asterisk
-	ID        field.Uint
+	ID        field.Uint64
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	DeletedAt field.Field
@@ -66,7 +67,7 @@ func (u user) As(alias string) *user {
 
 func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
-	u.ID = field.NewUint(table, "id")
+	u.ID = field.NewUint64(table, "id")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 	u.DeletedAt = field.NewField(table, "deleted_at")

@@ -38,21 +38,34 @@ func NewSettingRepo(repo settingRepo) SettingRepo {
 
 // GetByName implements SettingRepo.GetByName.
 func (r *settingRepo) GetByName(ctx context.Context, name string) (string, error) {
-	ctx, span := tracer.Start(ctx, "get-setting-by-name")
+	ctx, span := tracer.Start(ctx, "get-setting-by-name", trace.WithAttributes(
+		attribute.String("name", name),
+	))
 	defer span.End()
 
 	if v, exist := r.Cache.Get(ctx, fmt.Sprint("database:setting:", name)); exist {
 		if setting, ok := v.(string); ok {
+			span.AddEvent("get-from-cache", trace.WithAttributes(
+				attribute.String("status", "hit"),
+			))
+
 			return setting, nil
 		}
+	} else {
+		span.AddEvent("get-from-cache", trace.WithAttributes(
+			attribute.String("status", "miss"),
+		))
 	}
 
 	setting, err := r.Query.Setting.WithContext(ctx).Where(r.Query.Setting.Name.Eq(name)).First()
 	if err != nil {
+		span.RecordError(err)
 		return "", err
 	}
 
-	_ = r.Cache.Set(ctx, fmt.Sprint("database:setting:", name), setting.Value, 0)
+	if err := r.Cache.Set(ctx, fmt.Sprint("database:setting:", name), setting.Value, 0); err != nil {
+		span.RecordError(err)
+	}
 
 	return setting.Value, nil
 }
@@ -72,9 +85,7 @@ func (r *settingRepo) GetIntByName(ctx context.Context, name string) (int, error
 
 // GetBoolByName implements SettingRepo.GetBoolByName.
 func (r *settingRepo) GetBoolByName(ctx context.Context, name string) (bool, error) {
-	ctx, span := tracer.Start(ctx, "get-setting-bool-by-name", trace.WithAttributes(
-		attribute.String("name", name),
-	))
+	ctx, span := tracer.Start(ctx, "get-setting-bool-by-name")
 	defer span.End()
 
 	setting, err := r.GetByName(ctx, name)
@@ -108,9 +119,15 @@ func (r *settingRepo) ListByNames(ctx context.Context, names []string) (map[stri
 		}
 	}
 
+	span.AddEvent("get-multi-from-cache", trace.WithAttributes(
+		attribute.StringSlice("missed", missed),
+		attribute.StringSlice("hit", lo.Keys(settings)),
+	))
+
 	if len(missed) > 0 {
 		slice, err := r.Query.Setting.WithContext(ctx).Where(r.Query.Setting.Name.In(names...)).Find()
 		if err != nil {
+			span.RecordError(err)
 			return nil, err
 		}
 
@@ -119,9 +136,15 @@ func (r *settingRepo) ListByNames(ctx context.Context, names []string) (map[stri
 		}))
 
 		// cache settings
-		_ = r.Cache.SetMulti(ctx, lo.MapEntries(settings, func(key string, value string) (string, any) {
+		if err := r.Cache.SetMulti(ctx, lo.MapEntries(settings, func(key string, value string) (string, any) {
 			return key, value
-		}), "database:setting:")
+		}), "database:setting:"); err != nil {
+			span.RecordError(err)
+		}
+
+		span.AddEvent("set-multi-to-cache", trace.WithAttributes(
+			attribute.StringSlice("keys", lo.Keys(settings)),
+		))
 	}
 
 	return settings, nil
@@ -136,16 +159,20 @@ func (r *settingRepo) SetByName(ctx context.Context, name, value string) error {
 	defer span.End()
 
 	if err := r.Cache.Delete(ctx, fmt.Sprint("database:setting:", name)); err != nil {
+		span.RecordError(err)
 		return err
 	}
 
 	if _, err := r.Query.Setting.WithContext(ctx).
 		Where(r.Query.Setting.Name.Eq(name)).
 		Update(r.Query.Setting.Name, value); err != nil {
+		span.RecordError(err)
 		return err
 	}
 
-	_ = r.Cache.Set(ctx, fmt.Sprint("database:setting:", name), value, 0)
+	if err := r.Cache.Set(ctx, fmt.Sprint("database:setting:", name), value, 0); err != nil {
+		span.RecordError(err)
+	}
 
 	return nil
 }

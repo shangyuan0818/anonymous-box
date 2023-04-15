@@ -18,16 +18,20 @@ import (
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:      db,
+		Comment: newComment(db, opts...),
 		Setting: newSetting(db, opts...),
 		User:    newUser(db, opts...),
+		Website: newWebsite(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
+	Comment comment
 	Setting setting
 	User    user
+	Website website
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -35,8 +39,10 @@ func (q *Query) Available() bool { return q.db != nil }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:      db,
+		Comment: q.Comment.clone(db),
 		Setting: q.Setting.clone(db),
 		User:    q.User.clone(db),
+		Website: q.Website.clone(db),
 	}
 }
 
@@ -51,20 +57,26 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:      db,
+		Comment: q.Comment.replaceDB(db),
 		Setting: q.Setting.replaceDB(db),
 		User:    q.User.replaceDB(db),
+		Website: q.Website.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
+	Comment ICommentDo
 	Setting ISettingDo
 	User    IUserDo
+	Website IWebsiteDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
+		Comment: q.Comment.WithContext(ctx),
 		Setting: q.Setting.WithContext(ctx),
 		User:    q.User.WithContext(ctx),
+		Website: q.Website.WithContext(ctx),
 	}
 }
 

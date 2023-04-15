@@ -10,7 +10,7 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/api/verifyservice"
 )
 
-var tracer = otel.Tracer("gateway-service.server.controller.verify")
+var tracer = otel.Tracer("gateway-service.server.controller.api.v1.verify")
 
 type Controller struct {
 	fx.In

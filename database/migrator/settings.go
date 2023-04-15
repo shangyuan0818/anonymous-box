@@ -12,6 +12,9 @@ var defaultSettings = []model.Setting{
 	{Name: "app_description", Value: "Anonymous Box SaaS Service", Type: model.SettingTypeBasic},
 	{Name: "app_logo", Value: "https://example.com/logo.png", Type: model.SettingTypeBasic},
 	{Name: "app_url", Value: "https://example.com", Type: model.SettingTypeBasic},
+	{Name: "app_hashids_salt", Value: "salt", Type: model.SettingTypeBasic},
+	{Name: "app_hashids_min_length", Value: "8", Type: model.SettingTypeBasic},
+	{Name: "app_hashids_alphabet", Value: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", Type: model.SettingTypeBasic},
 
 	{Name: "auth_jwt_secret", Value: "secret", Type: model.SettingTypeAuth},
 	{Name: "auth_jwt_expires", Value: "3600", Type: model.SettingTypeAuth},

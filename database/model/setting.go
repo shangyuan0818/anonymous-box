@@ -1,5 +1,7 @@
 package model
 
+import "encoding/gob"
+
 type Setting struct {
 	Name  string      `gorm:"primaryKey"`
 	Type  SettingType `gorm:"not null;index"`
@@ -14,3 +16,7 @@ const (
 	SettingTypeAuth   SettingType = "auth"   // 认证设置
 	SettingTypeEmail  SettingType = "email"  // 邮件设置
 )
+
+func init() {
+	gob.Register(Setting{})
+}

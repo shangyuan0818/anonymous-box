@@ -220,3 +220,60 @@ services:
       EMAIL_SSL: true
       EMAIL_TLS: false
     restart: always
+
+
+  website-service:
+    hostname: website-service
+    build:
+      context: .
+      dockerfile: docker/service/Dockerfile
+      args:
+        - SERVICE_NAME=website
+    networks:
+      - app-network
+    environment:
+      TZ: Asia/Shanghai
+      LOG_LEVEL: info
+      TRACE_ENDPOINT: http://jaeger:14268/api/traces
+      CONSUL_ADDR: http://consul:8500
+      CONSUL_NAMESPACE:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: anonymous_box_saas
+      DB_PASSWORD: anonymous_box_saas
+      DB_DATABASE: anonymous_box_saas
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MQ_HOST: mq
+      MQ_PORT: 5672
+      MQ_USER: anonymous_box_saas
+      MQ_PASSWORD: anonymous_box_saas
+    restart: always
+
+  comment-service:
+    hostname: comment-service
+    build:
+      context: .
+      dockerfile: docker/service/Dockerfile
+      args:
+        - SERVICE_NAME=comment
+    networks:
+      - app-network
+    environment:
+      TZ: Asia/Shanghai
+      LOG_LEVEL: info
+      TRACE_ENDPOINT: http://jaeger:14268/api/traces
+      CONSUL_ADDR: http://consul:8500
+      CONSUL_NAMESPACE:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: anonymous_box_saas
+      DB_PASSWORD: anonymous_box_saas
+      DB_DATABASE: anonymous_box_saas
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MQ_HOST: mq
+      MQ_PORT: 5672
+      MQ_USER: anonymous_box_saas
+      MQ_PASSWORD: anonymous_box_saas
+    restart: always

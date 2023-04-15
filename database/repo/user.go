@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 
 	"github.com/star-horizon/anonymous-box-saas/database/dal"
@@ -36,18 +38,28 @@ func (r *userRepo) GetByID(ctx context.Context, id uint64) (*model.User, error) 
 	ctx, span := tracer.Start(ctx, "get-user-by-id")
 	defer span.End()
 
-	if v, exist := r.Cache.Get(ctx, fmt.Sprint("database:user:", id)); exist {
+	if v, exist := r.Cache.Get(ctx, fmt.Sprint("database:user:id:", id)); exist {
 		if user, ok := v.(model.User); ok {
+			span.AddEvent("get-from-cache", trace.WithAttributes(
+				attribute.String("status", "hit"),
+			))
+
 			return &user, nil
 		}
+	} else {
+		span.AddEvent("get-from-cache", trace.WithAttributes(
+			attribute.String("status", "miss"),
+		))
 	}
 
-	user, err := r.Query.User.WithContext(ctx).Where(r.Query.User.ID.Eq(uint(id))).First()
+	user, err := r.Query.User.WithContext(ctx).Where(r.Query.User.ID.Eq(id)).First()
 	if err != nil {
 		return nil, err
 	}
 
-	_ = r.Cache.Set(ctx, fmt.Sprint("database:user:", id), *user, 0)
+	if err := r.Cache.Set(ctx, fmt.Sprint("database:user:id:", id), *user, 0); err != nil {
+		span.RecordError(err)
+	}
 
 	return user, nil
 }
@@ -83,7 +95,11 @@ func (r *userRepo) Create(ctx context.Context, user *model.User) error {
 	ctx, span := tracer.Start(ctx, "create-user")
 	defer span.End()
 
-	return r.Query.User.WithContext(ctx).Create(user)
+	if err := r.Query.User.WithContext(ctx).Create(user); err != nil {
+		span.RecordError(err)
+	}
+
+	return nil
 }
 
 // Update implements UserRepo.Update.
@@ -91,7 +107,7 @@ func (r *userRepo) Update(ctx context.Context, user *model.User) error {
 	ctx, span := tracer.Start(ctx, "update-user")
 	defer span.End()
 
-	if err := r.Cache.Delete(ctx, fmt.Sprint("database:user:", user.ID)); err != nil {
+	if err := r.Cache.Delete(ctx, fmt.Sprint("database:user:id:", user.ID)); err != nil {
 		return err
 	}
 
@@ -107,11 +123,11 @@ func (r *userRepo) Delete(ctx context.Context, id uint64) error {
 	ctx, span := tracer.Start(ctx, "delete-user")
 	defer span.End()
 
-	if err := r.Cache.Delete(ctx, fmt.Sprint("database:user:", id)); err != nil {
+	if err := r.Cache.Delete(ctx, fmt.Sprint("database:user:id:", id)); err != nil {
 		return err
 	}
 
-	if _, err := r.Query.User.WithContext(ctx).Where(r.Query.User.ID.Eq(uint(id))).Delete(); err != nil {
+	if _, err := r.Query.User.WithContext(ctx).Where(r.Query.User.ID.Eq(id)).Delete(); err != nil {
 		return err
 	}
 

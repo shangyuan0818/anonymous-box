@@ -50,7 +50,12 @@ func main() {
 		return
 	}
 
-	if err := db.AutoMigrate(&model.User{}, &model.Setting{}); err != nil {
+	if err := db.AutoMigrate(
+		&model.User{},
+		&model.Setting{},
+		&model.Website{},
+		&model.Comment{},
+	); err != nil {
 		logrus.WithError(err).Fatal("failed to migrate database")
 		return
 	}

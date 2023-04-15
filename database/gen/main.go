@@ -8,11 +8,16 @@ import (
 
 func main() {
 	g := gen.NewGenerator(gen.Config{
-		OutPath: "internal/database/dal",
+		OutPath: "database/dal",
 		Mode:    gen.WithQueryInterface,
 	})
 
-	g.ApplyBasic(model.User{}, model.Setting{})
+	g.ApplyBasic(
+		model.User{},
+		model.Setting{},
+		model.Website{},
+		model.Comment{},
+	)
 
 	g.Execute()
 }
