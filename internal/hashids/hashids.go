@@ -3,10 +3,9 @@ package hashids
 import (
 	"context"
 	"errors"
-	"strconv"
-
 	"github.com/speps/go-hashids/v2"
 	"go.opentelemetry.io/otel"
+	"strconv"
 
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
 )
@@ -18,19 +17,24 @@ var (
 )
 
 type Service interface {
+	getClient(ctx context.Context) (*hashids.HashID, error)
 	Encode(ctx context.Context, id uint64, t HashType) (string, error)
 	Decode(ctx context.Context, hash string, t HashType) (uint64, error)
 }
 
 type service struct {
-	client *hashids.HashID
+	SettingRepo repo.SettingRepo
 }
 
-func NewService(ctx context.Context, settingRepo repo.SettingRepo) (Service, error) {
-	ctx, span := tracer.Start(context.Background(), "new-hashids-service")
+func NewService(svc service) Service {
+	return &svc
+}
+
+func (s *service) getClient(ctx context.Context) (*hashids.HashID, error) {
+	ctx, span := tracer.Start(ctx, "hashids-get-client")
 	defer span.End()
 
-	settings, err := settingRepo.ListByNames(ctx, []string{
+	settings, err := s.SettingRepo.ListByNames(ctx, []string{
 		"app_hashids_salt",
 		"app_hashids_min_length",
 		"app_hashids_alphabet",
@@ -49,8 +53,11 @@ func NewService(ctx context.Context, settingRepo repo.SettingRepo) (Service, err
 		Alphabet:  settings["app_hashids_alphabet"],
 		Salt:      settings["app_hashids_salt"],
 	})
+	if err != nil {
+		return nil, err
+	}
 
-	return &service{c}, nil
+	return c, nil
 }
 
 // Encode implements Service.Encode
@@ -58,7 +65,12 @@ func (s *service) Encode(ctx context.Context, id uint64, t HashType) (string, er
 	ctx, span := tracer.Start(ctx, "hashids-encode")
 	defer span.End()
 
-	return s.client.EncodeInt64([]int64{int64(id), int64(t)})
+	c, err := s.getClient(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return c.EncodeInt64([]int64{int64(id), int64(t)})
 }
 
 // Decode implements Service.Decode
@@ -66,7 +78,12 @@ func (s *service) Decode(ctx context.Context, hash string, t HashType) (uint64, 
 	ctx, span := tracer.Start(ctx, "hashids-decode")
 	defer span.End()
 
-	ids, err := s.client.DecodeInt64WithError(hash)
+	c, err := s.getClient(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	ids, err := c.DecodeInt64WithError(hash)
 	if err != nil {
 		return 0, err
 	}
