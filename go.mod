@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/cloudwego/fastpb v0.0.4
 	github.com/cloudwego/hertz v0.6.1
-	github.com/cloudwego/kitex v0.5.1
+	github.com/cloudwego/kitex v0.5.2
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.2
 	github.com/google/uuid v1.3.0
@@ -55,7 +55,7 @@ require (
 	github.com/choleraehyq/pid v0.0.16 // indirect
 	github.com/cloudwego/frugal v0.1.6 // indirect
 	github.com/cloudwego/netpoll v0.3.2 // indirect
-	github.com/cloudwego/thriftgo v0.2.8 // indirect
+	github.com/cloudwego/thriftgo v0.2.9 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
