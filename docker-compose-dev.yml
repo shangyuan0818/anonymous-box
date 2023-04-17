@@ -1,0 +1,86 @@
+version: '3.7'
+
+networks:
+  app-network:
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: anonymous_box_saas
+      POSTGRES_PASSWORD: anonymous_box_saas
+      POSTGRES_DB: anonymous_box_saas
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+    restart: always
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    networks:
+      - app-network
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - app-network
+    ports:
+      - "6379:6379"
+    restart: always
+
+  mq:
+    image: rabbitmq:3.9-management-alpine
+    networks:
+      - app-network
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: anonymous_box_saas
+      RABBITMQ_DEFAULT_PASS: anonymous_box_saas
+    restart: always
+
+  consul:
+    image: consul:1.15
+    networks:
+      - app-network
+    ports:
+      - "8500:8500"
+    restart: always
+    environment:
+      CONSUL_BIND_INTERFACE: eth0
+      CONSUL_CLIENT_INTERFACE: eth0
+      CONSUL_LOCAL_CONFIG: '{"leave_on_terminate": true, "skip_leave_on_interrupt": true}'
+
+  migrator:
+    init: true
+    build:
+      context: .
+      dockerfile: docker/migrator/Dockerfile
+    networks:
+      - app-network
+    environment:
+      TZ: Asia/Shanghai
+      LOG_LEVEL: info
+      TRACE_ENDPOINT: http://jaeger:14268/api/traces
+      CONSUL_ADDR: http://consul:8500
+      CONSUL_NAMESPACE:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: anonymous_box_saas
+      DB_PASSWORD: anonymous_box_saas
+      DB_DATABASE: anonymous_box_saas
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MQ_HOST: mq
+      MQ_PORT: 5672
+      MQ_USER: anonymous_box_saas
+      MQ_PASSWORD: anonymous_box_saas
+    restart: on-failure

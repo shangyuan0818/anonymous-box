@@ -1,6 +1,7 @@
 ### App template
 
 /docker-data/
+/build/
 
 /services/*/output/
 
