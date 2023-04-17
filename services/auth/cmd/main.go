@@ -11,26 +11,17 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/services/auth"
 )
 
-var (
-	tracer = otel.Tracer("main")
-	ctx    = context.Background()
-	app    *fx.App
-)
+var tracer = otel.Tracer("main")
 
-func init() {
-	ctx, span := tracer.Start(ctx, "init")
+func main() {
+	ctx, span := tracer.Start(context.Background(), "main")
 	defer span.End()
 
-	app = bootstrap.InitApp(
+	app := bootstrap.InitApp(
 		ctx,
 		auth.ServiceName,
 		fx.Invoke(bootstrap.RunService(authservice.NewServer)),
 	)
-}
-
-func main() {
-	_, span := tracer.Start(ctx, "main")
-	defer span.End()
 
 	app.Run()
 }

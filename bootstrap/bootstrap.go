@@ -23,7 +23,7 @@ import (
 var tracer = otel.Tracer("bootstrap")
 
 func InitApp(ctx context.Context, serviceName string, options ...fx.Option) *fx.App {
-	ctx, span := tracer.Start(ctx, fmt.Sprintf("init-app-%s", serviceName))
+	ctx, span := tracer.Start(ctx, fmt.Sprintf("init-app:%s", serviceName))
 	defer span.End()
 
 	app := fx.New(

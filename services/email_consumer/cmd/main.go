@@ -11,27 +11,18 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/services/email_consumer"
 )
 
-var (
-	ctx    = context.Background()
-	tracer = otel.Tracer("main")
-	app    *fx.App
-)
+var tracer = otel.Tracer("main")
 
-func init() {
-	ctx, span := tracer.Start(ctx, "init")
+func main() {
+	ctx, span := tracer.Start(context.Background(), "main")
 	defer span.End()
 
-	app = bootstrap.InitApp(
+	app := bootstrap.InitApp(
 		ctx,
 		email_consumer.ServiceName,
 		fx.Invoke(email_consumer.RunConsumer),
 		fx.Invoke(bootstrap.RunService(emailserviceconsumer.NewServer)),
 	)
-}
-
-func main() {
-	_, span := tracer.Start(ctx, "main")
-	defer span.End()
 
 	app.Run()
 }

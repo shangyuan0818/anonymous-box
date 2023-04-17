@@ -11,26 +11,17 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/services/website"
 )
 
-var (
-	ctx    = context.Background()
-	tracer = otel.Tracer("main")
-	app    *fx.App
-)
+var tracer = otel.Tracer("main")
 
-func init() {
-	ctx, span := tracer.Start(ctx, "init")
+func main() {
+	ctx, span := tracer.Start(context.Background(), "main")
 	defer span.End()
 
-	app = bootstrap.InitApp(
+	app := bootstrap.InitApp(
 		ctx,
 		website.ServiceName,
 		fx.Invoke(bootstrap.RunService(websiteservice.NewServer)),
 	)
-}
-
-func main() {
-	_, span := tracer.Start(ctx, "main")
-	defer span.End()
 
 	app.Run()
 }

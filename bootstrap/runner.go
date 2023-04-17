@@ -20,7 +20,7 @@ type ServiceRunnerFunc[T any] func(context.Context, T, fx.Lifecycle, string, reg
 
 func RunService[T any](serviceFunc NewServiceFunc[T], options ...server.Option) ServiceRunnerFunc[T] {
 	return func(ctx context.Context, handler T, lc fx.Lifecycle, serviceName string, reg registry.Registry, e *config.ServiceEnv) {
-		ctx, span := tracer.Start(ctx, fmt.Sprintf("run-service-%s", serviceName))
+		ctx, span := tracer.Start(ctx, fmt.Sprintf("run-service:%s", serviceName))
 		defer span.End()
 
 		options = append(
@@ -39,7 +39,7 @@ func RunService[T any](serviceFunc NewServiceFunc[T], options ...server.Option) 
 
 		lc.Append(fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				ctx, span := tracer.Start(ctx, fmt.Sprintf("start-service-%s", serviceName))
+				ctx, span := tracer.Start(ctx, fmt.Sprintf("start-service:%s", serviceName))
 				defer span.End()
 
 				go func() {
@@ -52,7 +52,7 @@ func RunService[T any](serviceFunc NewServiceFunc[T], options ...server.Option) 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				ctx, span := tracer.Start(ctx, fmt.Sprintf("stop-service-%s", serviceName))
+				ctx, span := tracer.Start(ctx, fmt.Sprintf("stop-service:%s", serviceName))
 				defer span.End()
 
 				if err := svr.Stop(); err != nil {

@@ -18,23 +18,7 @@ import (
 
 const serviceName = "gateway"
 
-var (
-	ctx    = context.Background()
-	tracer = otel.Tracer("main")
-	app    *fx.App
-)
-
-func init() {
-	ctx, span := tracer.Start(ctx, "init")
-	defer span.End()
-
-	app = bootstrap.InitApp(
-		ctx,
-		serviceName,
-		server.Module(),
-		fx.Invoke(run),
-	)
-}
+var tracer = otel.Tracer("main")
 
 func run(ctx context.Context, svr *hertzserver.Hertz, lc fx.Lifecycle) error {
 	ctx, span := tracer.Start(ctx, "run-gateway")
@@ -97,8 +81,15 @@ func run(ctx context.Context, svr *hertzserver.Hertz, lc fx.Lifecycle) error {
 }
 
 func main() {
-	_, span := tracer.Start(ctx, "main")
+	ctx, span := tracer.Start(context.Background(), "main")
 	defer span.End()
+
+	app := bootstrap.InitApp(
+		ctx,
+		serviceName,
+		server.Module(),
+		fx.Invoke(run),
+	)
 
 	app.Run()
 }
