@@ -34,6 +34,7 @@ func InitApp(ctx context.Context, serviceName string, options ...fx.Option) *fx.
 
 		config.Module(),
 		logger.Module(),
+		fx.WithLogger(logger.FxLogger),
 		consul.Module(),
 		trace.Module(),
 
