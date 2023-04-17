@@ -10,26 +10,17 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"github.com/star-horizon/anonymous-box-saas/config"
 	"github.com/star-horizon/anonymous-box-saas/database/dal"
 	"github.com/star-horizon/anonymous-box-saas/database/model"
 )
-
-type env struct {
-	Host     string `default:"localhost"`
-	Port     int    `default:"5432"`
-	User     string `default:"postgres"`
-	Password string `default:"postgres"`
-	Database string `default:"postgres"`
-	SSLMode  string `default:"disable"`
-	TimeZone string `default:"Asia/Shanghai" envconfig:"TZ"`
-}
 
 func main() {
 	if err := godotenv.Load(".env"); err != nil {
 		logrus.WithError(err).Warn("failed to load .env")
 	}
 
-	var e env
+	var e config.DatabaseEnv
 	if err := envconfig.Process("DB", &e); err != nil {
 		logrus.WithError(err).Fatal("failed to process env")
 		return

@@ -5,7 +5,8 @@ import (
 )
 
 func Module() fx.Option {
-	return fx.Module("auth-service",
+	return fx.Module(
+		ServiceName,
 		fx.Provide(NewAuthServiceImpl),
 		fx.Provide(NewAuthServiceClient),
 	)
