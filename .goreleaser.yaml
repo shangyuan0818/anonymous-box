@@ -1,0 +1,125 @@
+before:
+  hooks:
+    - go mod tidy
+
+env:
+  - CGO_ENABLED=0
+  - GO111MODULE=on
+
+builds:
+  - id: migrator
+    main: ./database/migrator
+    binary: migrator
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+  - id: gateway
+    main: ./gateway/cmd
+    binary: gateway
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+  - id: auth-service
+    main: ./services/auth/cmd
+    binary: auth-service
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+  - id: comment-service
+    main: ./services/comment/cmd
+    binary: comment-service
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+  - id: email-service
+    main: ./services/email/cmd
+    binary: email-service
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+  - id: email-consumer-service
+    main: ./services/email_consumer/cmd
+    binary: email-consumer-service
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+  - id: verify-service
+    main: ./services/verify/cmd
+    binary: verify-service
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+  - id: website-service
+    main: ./services/website/cmd
+    binary: website-service
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of uname.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^Docs?:'
+      - '^Test:'
+      - '^CI:'
