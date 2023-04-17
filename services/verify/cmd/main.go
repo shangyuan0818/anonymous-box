@@ -4,23 +4,19 @@ import (
 	"context"
 
 	"github.com/cloudwego/kitex/pkg/registry"
+	"github.com/cloudwego/kitex/pkg/utils"
 	"github.com/cloudwego/kitex/server"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
-	"github.com/star-horizon/anonymous-box-saas/database"
-	"github.com/star-horizon/anonymous-box-saas/internal/infra"
-	"github.com/star-horizon/anonymous-box-saas/internal/redis"
+	"github.com/star-horizon/anonymous-box-saas/bootstrap"
+	"github.com/star-horizon/anonymous-box-saas/config"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/verifyservice"
-	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
-	"github.com/star-horizon/anonymous-box-saas/services/email"
 	"github.com/star-horizon/anonymous-box-saas/services/verify"
 )
-
-const serviceName = "verify-service"
 
 var (
 	ctx    = context.Background()
@@ -32,22 +28,14 @@ func init() {
 	ctx, span := tracer.Start(ctx, "init")
 	defer span.End()
 
-	app = fx.New(
-		fx.Supply(
-			fx.Annotate(ctx, fx.As(new(context.Context))),
-			serviceName,
-		),
-		infra.Module(),
-		redis.Module(),
-		fx.Provide(cache.NewRedisDriver),
-		database.Module(),
-		email.Module(), // use client to send email
-		verify.Module(),
+	app = bootstrap.InitApp(
+		ctx,
+		verify.ServiceName,
 		fx.Invoke(run),
 	)
 }
 
-func run(ctx context.Context, svc dash.VerifyService, lc fx.Lifecycle, r registry.Registry) {
+func run(ctx context.Context, svc dash.VerifyService, lc fx.Lifecycle, r registry.Registry, e *config.ServiceEnv) {
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 
@@ -55,9 +43,10 @@ func run(ctx context.Context, svc dash.VerifyService, lc fx.Lifecycle, r registr
 		svc,
 		server.WithRegistry(r),
 		server.WithRegistryInfo(&registry.Info{
-			ServiceName: serviceName,
+			ServiceName: verify.ServiceName,
 		}),
 		server.WithSuite(tracing.NewServerSuite()),
+		server.WithServiceAddr(utils.NewNetAddr(e.Network, e.Address)),
 	)
 
 	lc.Append(fx.Hook{

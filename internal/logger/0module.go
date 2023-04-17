@@ -5,6 +5,7 @@ import "go.uber.org/fx"
 func Module() fx.Option {
 	return fx.Module(
 		"logger",
-		fx.Invoke(InitLogger),
+		fx.Provide(NewLogger),
+		fx.WithLogger(FxLogger),
 	)
 }

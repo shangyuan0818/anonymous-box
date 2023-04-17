@@ -16,7 +16,7 @@ func NewVerifyServiceClient(ctx context.Context, resolver discovery.Resolver) (v
 	defer span.End()
 
 	return verifyservice.NewClient(
-		"verify-service",
+		ServiceName,
 		client.WithResolver(resolver),
 		client.WithSuite(tracing.NewClientSuite()),
 	)

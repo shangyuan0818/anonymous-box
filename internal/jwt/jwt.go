@@ -37,32 +37,20 @@ func (s *service) GenerateToken(ctx context.Context, userId uint64) (string, err
 		"expires_at": now.Add(time.Hour * 24),
 	})
 
-	expire, err := s.SettingRepo.GetIntByName(ctx, "auth_jwt_expires")
-	if err != nil {
-		logger.WithError(err).Error("query jwt expire failed")
-		return "", err
-	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, userClaims{
 		UserID: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    Issuer,
 			IssuedAt:  jwt.NewNumericDate(now),
 			NotBefore: jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(time.Second * time.Duration(expire))),
+			ExpiresAt: jwt.NewNumericDate(now.Add(s.expire)),
 			ID:        strconv.FormatUint(userId, 10),
 			Subject:   fmt.Sprintf("user-%d", userId),
 			Audience:  []string{},
 		},
 	})
 
-	jwtSecret, err := s.SettingRepo.GetByName(ctx, "auth_jwt_secret")
-	if err != nil {
-		logger.WithError(err).Error("query jwt secret failed")
-		return "", err
-	}
-
-	tokenString, err := token.SignedString([]byte(jwtSecret))
+	tokenString, err := token.SignedString([]byte(s.secret))
 	if err != nil {
 		logger.WithError(err).Error("sign token failed")
 		return "", err
@@ -82,14 +70,8 @@ func (s *service) ParseToken(ctx context.Context, tokenString string) (uint64, e
 		"token": tokenString,
 	})
 
-	jwtSecret, err := s.SettingRepo.GetByName(ctx, "auth_jwt_secret")
-	if err != nil {
-		logger.WithError(err).Error("query jwt secret failed")
-		return 0, err
-	}
-
 	token, err := jwt.ParseWithClaims(tokenString, &userClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(jwtSecret), nil
+		return []byte(s.secret), nil
 	}, jwt.WithIssuer(Issuer))
 	if err != nil {
 		logger.WithError(err).Error("parse token failed")

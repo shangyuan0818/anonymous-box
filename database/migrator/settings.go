@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/star-horizon/anonymous-box-saas/config"
 	"github.com/star-horizon/anonymous-box-saas/database/model"
-	"github.com/star-horizon/anonymous-box-saas/internal/config"
 )
 
 var defaultSettings = []model.Setting{

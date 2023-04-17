@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/star-horizon/anonymous-box-saas/services/comment"
-	"github.com/star-horizon/anonymous-box-saas/services/website"
 	"time"
 
 	hertzserver "github.com/cloudwego/hertz/pkg/app/server"
@@ -13,11 +11,9 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
+	"github.com/star-horizon/anonymous-box-saas/bootstrap"
 	"github.com/star-horizon/anonymous-box-saas/gateway/server"
-	"github.com/star-horizon/anonymous-box-saas/internal/infra"
 	"github.com/star-horizon/anonymous-box-saas/pkg/util"
-	"github.com/star-horizon/anonymous-box-saas/services/auth"
-	"github.com/star-horizon/anonymous-box-saas/services/verify"
 )
 
 const serviceName = "gateway"
@@ -32,17 +28,10 @@ func init() {
 	ctx, span := tracer.Start(ctx, "init")
 	defer span.End()
 
-	app = fx.New(
-		fx.Supply(
-			fx.Annotate(ctx, fx.As(new(context.Context))),
-			serviceName,
-		),
-		infra.Module(),
-		auth.Module(),    // use client
-		verify.Module(),  // use client
-		website.Module(), // use client
-		comment.Module(), // use client
-		server.Module(),  // use controller
+	app = bootstrap.InitApp(
+		ctx,
+		serviceName,
+		server.Module(),
 		fx.Invoke(run),
 	)
 }

@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/star-horizon/anonymous-box-saas/config"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -17,16 +18,6 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/database/dal"
 )
 
-type env struct {
-	Host     string `default:"localhost"`
-	Port     int    `default:"5432"`
-	User     string `default:"postgres"`
-	Password string `default:"postgres"`
-	Database string `default:"postgres"`
-	SSLMode  string `default:"disable"`
-	TimeZone string `default:"Asia/Shanghai" envconfig:"TZ"`
-}
-
 var tracer = otel.Tracer("internal.database")
 
 func NewDB(ctx context.Context) (*gorm.DB, error) {
@@ -37,7 +28,7 @@ func NewDB(ctx context.Context) (*gorm.DB, error) {
 		logrus.WithContext(ctx).WithError(err).Warn("failed to load .env")
 	}
 
-	var e env
+	var e config.DatabaseEnv
 	if err := envconfig.Process("DB", &e); err != nil {
 		logrus.WithContext(ctx).WithError(err).Error("failed to process env")
 		return nil, err

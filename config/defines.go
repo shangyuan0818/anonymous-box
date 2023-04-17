@@ -4,7 +4,10 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel"
 )
+
+var tracer = otel.Tracer("config")
 
 const (
 	Namespace = "anonymous-box-saas"

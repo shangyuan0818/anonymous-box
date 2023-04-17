@@ -15,7 +15,9 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 )
 
-var tracer = otel.Tracer("verify-service")
+var tracer = otel.Tracer(ServiceName)
+
+const ServiceName = "verify-service"
 
 // VerifyServiceImpl implements the last service interface defined in the IDL.
 type VerifyServiceImpl struct {
@@ -40,7 +42,7 @@ func (s *VerifyServiceImpl) VerifyEmail(ctx context.Context, req *dash.VerifyEma
 	ctx, span := tracer.Start(ctx, "verify-email")
 	defer span.End()
 
-	v, exist := s.Cache.Get(ctx, fmt.Sprint("verify_service::email_verify_code::", req.GetEmail()))
+	v, exist := s.Cache.Get(ctx, fmt.Sprint(ServiceName, ":email_verify_code:", req.GetEmail()))
 	if !exist {
 		return nil, ErrVerifyCodeNotFound
 	}

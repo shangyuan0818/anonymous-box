@@ -9,7 +9,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.18.0"
 	"go.uber.org/fx"
 
-	"github.com/star-horizon/anonymous-box-saas/internal/config"
+	"github.com/star-horizon/anonymous-box-saas/config"
 )
 
 func KitexOpenTelemetryProvider(ctx context.Context, tracerProvider *tracesdk.TracerProvider, serviceName string, lc fx.Lifecycle) {

@@ -2,22 +2,19 @@ package main
 
 import (
 	"context"
-	"github.com/star-horizon/anonymous-box-saas/services/auth"
 
 	"github.com/cloudwego/kitex/pkg/registry"
+	"github.com/cloudwego/kitex/pkg/utils"
 	"github.com/cloudwego/kitex/server"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
 
-	"github.com/star-horizon/anonymous-box-saas/database"
-	"github.com/star-horizon/anonymous-box-saas/internal/infra"
-	"github.com/star-horizon/anonymous-box-saas/internal/mq"
-	"github.com/star-horizon/anonymous-box-saas/internal/redis"
+	"github.com/star-horizon/anonymous-box-saas/bootstrap"
+	"github.com/star-horizon/anonymous-box-saas/config"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/websiteservice"
-	"github.com/star-horizon/anonymous-box-saas/pkg/cache"
 	"github.com/star-horizon/anonymous-box-saas/services/website"
 )
 
@@ -31,25 +28,14 @@ func init() {
 	ctx, span := tracer.Start(ctx, "init")
 	defer span.End()
 
-	serviceName := website.ServiceName
-
-	app = fx.New(
-		fx.Supply(
-			fx.Annotate(ctx, fx.As(new(context.Context))),
-			serviceName,
-		),
-		infra.Module(),
-		redis.Module(),
-		fx.Provide(cache.NewRedisDriver),
-		database.Module(),
-		mq.Module(),
-		auth.Module(),
-		website.Module(),
+	app = bootstrap.InitApp(
+		ctx,
+		website.ServiceName,
 		fx.Invoke(run),
 	)
 }
 
-func run(ctx context.Context, lc fx.Lifecycle, svc dash.WebsiteService, r registry.Registry) {
+func run(ctx context.Context, lc fx.Lifecycle, svc dash.WebsiteService, r registry.Registry, e *config.ServiceEnv) {
 	ctx, span := tracer.Start(ctx, "run")
 	defer span.End()
 
@@ -60,6 +46,7 @@ func run(ctx context.Context, lc fx.Lifecycle, svc dash.WebsiteService, r regist
 			ServiceName: website.ServiceName,
 		}),
 		server.WithSuite(tracing.NewServerSuite()),
+		server.WithServiceAddr(utils.NewNetAddr(e.Network, e.Address)),
 	)
 
 	lc.Append(fx.Hook{

@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/star-horizon/anonymous-box-saas/config"
 
 	"github.com/kelseyhightower/envconfig"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -15,7 +16,6 @@ import (
 	"gopkg.in/mail.v2"
 
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
-	"github.com/star-horizon/anonymous-box-saas/internal/config"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
 )
 
