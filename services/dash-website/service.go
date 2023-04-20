@@ -1,4 +1,4 @@
-package website
+package dash_website
 
 import (
 	"context"
@@ -20,7 +20,7 @@ import (
 var tracer = otel.Tracer(ServiceName)
 
 const (
-	ServiceName = "website-service"
+	ServiceName = "dash-website-service"
 )
 
 type WebsiteServiceImpl struct {

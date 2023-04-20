@@ -100,13 +100,13 @@ services:
       CONSUL_NAMESPACE:
     restart: always
 
-  verify-service:
-    hostname: verify-service
+  dash-verify-service:
+    hostname: dash-verify-service
     build:
       context: .
       dockerfile: docker/service/Dockerfile
       args:
-        - SERVICE_NAME=verify
+        - SERVICE_NAME=dash-verify
     networks:
       - app-network
     environment:
@@ -129,13 +129,13 @@ services:
     restart: always
 
 
-  auth-service:
-    hostname: auth-service
+  dash-auth-service:
+    hostname: dash-auth-service
     build:
       context: .
       dockerfile: docker/service/Dockerfile
       args:
-        - SERVICE_NAME=auth
+        - SERVICE_NAME=dash-auth
     networks:
       - app-network
     environment:
@@ -193,7 +193,7 @@ services:
       context: .
       dockerfile: docker/service/Dockerfile
       args:
-        - SERVICE_NAME=email_consumer
+        - SERVICE_NAME=email-consumer
     networks:
       - app-network
     environment:
@@ -222,13 +222,13 @@ services:
     restart: always
 
 
-  website-service:
-    hostname: website-service
+  dash-website-service:
+    hostname: dash-website-service
     build:
       context: .
       dockerfile: docker/service/Dockerfile
       args:
-        - SERVICE_NAME=website
+        - SERVICE_NAME=dash-website
     networks:
       - app-network
     environment:
@@ -250,13 +250,13 @@ services:
       MQ_PASSWORD: anonymous_box_saas
     restart: always
 
-  comment-service:
-    hostname: comment-service
+  dash-comment-service:
+    hostname: dash-comment-service
     build:
       context: .
       dockerfile: docker/service/Dockerfile
       args:
-        - SERVICE_NAME=comment
+        - SERVICE_NAME=dash-comment
     networks:
       - app-network
     environment:

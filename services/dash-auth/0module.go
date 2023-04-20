@@ -1,4 +1,4 @@
-package auth
+package dash_auth
 
 import (
 	"go.uber.org/fx"

@@ -1,4 +1,4 @@
-package website
+package dash_comment
 
 import (
 	"context"
@@ -7,14 +7,14 @@ import (
 	"github.com/cloudwego/kitex/pkg/discovery"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/websiteservice"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/commentservice"
 )
 
-func NewWebsiteServiceClient(ctx context.Context, resolver discovery.Resolver) (websiteservice.Client, error) {
+func NewCommentServiceClient(ctx context.Context, resolver discovery.Resolver) (commentservice.Client, error) {
 	ctx, span := tracer.Start(ctx, "new-email-service-client")
 	defer span.End()
 
-	return websiteservice.NewClient(
+	return commentservice.NewClient(
 		ServiceName,
 		client.WithResolver(resolver),
 		client.WithSuite(tracing.NewClientSuite()),

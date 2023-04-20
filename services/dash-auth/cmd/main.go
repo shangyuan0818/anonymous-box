@@ -7,8 +7,8 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/star-horizon/anonymous-box-saas/bootstrap"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/verifyservice"
-	"github.com/star-horizon/anonymous-box-saas/services/verify"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/authservice"
+	"github.com/star-horizon/anonymous-box-saas/services/dash-auth"
 )
 
 var tracer = otel.Tracer("main")
@@ -19,8 +19,8 @@ func main() {
 
 	app := bootstrap.InitApp(
 		ctx,
-		verify.ServiceName,
-		fx.Invoke(bootstrap.RunService(verifyservice.NewServer)),
+		dash_auth.ServiceName,
+		fx.Invoke(bootstrap.RunService(authservice.NewServer)),
 	)
 
 	app.Run()

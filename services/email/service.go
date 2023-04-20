@@ -15,7 +15,7 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
-	"github.com/star-horizon/anonymous-box-saas/services/email_consumer"
+	"github.com/star-horizon/anonymous-box-saas/services/email-consumer"
 )
 
 var tracer = otel.Tracer(ServiceName)

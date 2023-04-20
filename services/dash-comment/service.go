@@ -1,4 +1,4 @@
-package comment
+package dash_comment
 
 import (
 	"context"
@@ -19,7 +19,7 @@ import (
 var tracer = otel.Tracer(ServiceName)
 
 const (
-	ServiceName = "comment-service"
+	ServiceName = "dash-comment-service"
 )
 
 type CommentServiceImpl struct {

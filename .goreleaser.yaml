@@ -29,9 +29,9 @@ builds:
       - amd64
       - arm64
 
-  - id: auth-service
-    main: ./services/auth/cmd
-    binary: auth-service
+  - id: dash-auth-service
+    main: ./services/dash-auth/cmd
+    binary: dash-auth-service
     goos:
       - linux
       - windows
@@ -40,9 +40,9 @@ builds:
       - amd64
       - arm64
 
-  - id: comment-service
-    main: ./services/comment/cmd
-    binary: comment-service
+  - id: dash-comment-service
+    main: ./services/dash-comment/cmd
+    binary: dash-comment-service
     goos:
       - linux
       - windows
@@ -63,7 +63,7 @@ builds:
       - arm64
 
   - id: email-consumer-service
-    main: ./services/email_consumer/cmd
+    main: ./services/email-consumer/cmd
     binary: email-consumer-service
     goos:
       - linux
@@ -73,9 +73,9 @@ builds:
       - amd64
       - arm64
 
-  - id: verify-service
-    main: ./services/verify/cmd
-    binary: verify-service
+  - id: dash-verify-service
+    main: ./services/dash-verify/cmd
+    binary: dash-verify-service
     goos:
       - linux
       - windows
@@ -84,9 +84,9 @@ builds:
       - amd64
       - arm64
 
-  - id: website-service
-    main: ./services/website/cmd
-    binary: website-service
+  - id: dash-website-service
+    main: ./services/dash-website/cmd
+    binary: dash-website-service
     goos:
       - linux
       - windows

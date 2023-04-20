@@ -1,4 +1,4 @@
-package comment
+package dash_comment
 
 import "go.uber.org/fx"
 

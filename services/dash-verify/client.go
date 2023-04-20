@@ -1,4 +1,4 @@
-package verify
+package dash_verify
 
 import (
 	"context"

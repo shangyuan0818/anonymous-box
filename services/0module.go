@@ -3,22 +3,22 @@ package services
 import (
 	"go.uber.org/fx"
 
-	"github.com/star-horizon/anonymous-box-saas/services/auth"
-	"github.com/star-horizon/anonymous-box-saas/services/comment"
+	"github.com/star-horizon/anonymous-box-saas/services/dash-auth"
+	"github.com/star-horizon/anonymous-box-saas/services/dash-comment"
+	"github.com/star-horizon/anonymous-box-saas/services/dash-verify"
+	"github.com/star-horizon/anonymous-box-saas/services/dash-website"
 	"github.com/star-horizon/anonymous-box-saas/services/email"
-	"github.com/star-horizon/anonymous-box-saas/services/email_consumer"
-	"github.com/star-horizon/anonymous-box-saas/services/verify"
-	"github.com/star-horizon/anonymous-box-saas/services/website"
+	"github.com/star-horizon/anonymous-box-saas/services/email-consumer"
 )
 
 func Module() fx.Option {
 	return fx.Module(
 		"services",
-		auth.Module(),
-		comment.Module(),
+		dash_auth.Module(),
+		dash_comment.Module(),
 		email.Module(),
 		email_consumer.Module(),
-		verify.Module(),
-		website.Module(),
+		dash_verify.Module(),
+		dash_website.Module(),
 	)
 }

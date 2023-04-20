@@ -1,4 +1,4 @@
-package auth
+package dash_auth
 
 import (
 	"bytes"
@@ -19,9 +19,9 @@ import (
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/verifyservice"
 )
 
-var tracer = otel.Tracer("auth-service")
+var tracer = otel.Tracer("dash-auth-service")
 
-const ServiceName = "auth-service"
+const ServiceName = "dash-auth-service"
 
 // AuthServiceImpl implements the last service interface defined in the IDL.
 type AuthServiceImpl struct {

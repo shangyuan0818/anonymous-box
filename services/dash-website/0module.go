@@ -1,4 +1,4 @@
-package website
+package dash_website
 
 import "go.uber.org/fx"
 

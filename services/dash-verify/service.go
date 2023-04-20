@@ -1,4 +1,4 @@
-package verify
+package dash_verify
 
 import (
 	"context"
@@ -17,7 +17,7 @@ import (
 
 var tracer = otel.Tracer(ServiceName)
 
-const ServiceName = "verify-service"
+const ServiceName = "dash-verify-service"
 
 // VerifyServiceImpl implements the last service interface defined in the IDL.
 type VerifyServiceImpl struct {

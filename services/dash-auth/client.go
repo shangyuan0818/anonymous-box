@@ -1,4 +1,4 @@
-package auth
+package dash_auth
 
 import (
 	"context"
@@ -12,11 +12,11 @@ import (
 
 // NewAuthServiceClient creates a new AuthServiceClient.
 func NewAuthServiceClient(ctx context.Context, resolver discovery.Resolver) (authservice.Client, error) {
-	ctx, span := tracer.Start(ctx, "new-auth-service-client")
+	ctx, span := tracer.Start(ctx, "new-dash-auth-service-client")
 	defer span.End()
 
 	return authservice.NewClient(
-		"auth-service",
+		"dash-auth-service",
 		client.WithResolver(resolver),
 		client.WithSuite(tracing.NewClientSuite()),
 	)

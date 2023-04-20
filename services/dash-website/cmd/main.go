@@ -7,8 +7,8 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/star-horizon/anonymous-box-saas/bootstrap"
-	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/commentservice"
-	"github.com/star-horizon/anonymous-box-saas/services/comment"
+	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash/websiteservice"
+	"github.com/star-horizon/anonymous-box-saas/services/dash-website"
 )
 
 var tracer = otel.Tracer("main")
@@ -19,8 +19,8 @@ func main() {
 
 	app := bootstrap.InitApp(
 		ctx,
-		comment.ServiceName,
-		fx.Invoke(bootstrap.RunService(commentservice.NewServer)),
+		dash_website.ServiceName,
+		fx.Invoke(bootstrap.RunService(websiteservice.NewServer)),
 	)
 
 	app.Run()
