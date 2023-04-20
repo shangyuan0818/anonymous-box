@@ -17,6 +17,8 @@ func main() {
 		model.Setting{},
 		model.Website{},
 		model.Comment{},
+		model.Attachment{},
+		model.Storage{},
 	)
 
 	g.Execute()

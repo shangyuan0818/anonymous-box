@@ -17,5 +17,7 @@ func Module() fx.Option {
 		fx.Provide(repo.NewUserRepo),
 		fx.Provide(repo.NewWebsiteRepo),
 		fx.Provide(repo.NewCommentRepo),
+		fx.Provide(repo.NewAttachmentRepo),
+		fx.Provide(repo.NewStorageRepo),
 	)
 }

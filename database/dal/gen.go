@@ -17,32 +17,38 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:      db,
-		Comment: newComment(db, opts...),
-		Setting: newSetting(db, opts...),
-		User:    newUser(db, opts...),
-		Website: newWebsite(db, opts...),
+		db:         db,
+		Attachment: newAttachment(db, opts...),
+		Comment:    newComment(db, opts...),
+		Setting:    newSetting(db, opts...),
+		Storage:    newStorage(db, opts...),
+		User:       newUser(db, opts...),
+		Website:    newWebsite(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Comment comment
-	Setting setting
-	User    user
-	Website website
+	Attachment attachment
+	Comment    comment
+	Setting    setting
+	Storage    storage
+	User       user
+	Website    website
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:      db,
-		Comment: q.Comment.clone(db),
-		Setting: q.Setting.clone(db),
-		User:    q.User.clone(db),
-		Website: q.Website.clone(db),
+		db:         db,
+		Attachment: q.Attachment.clone(db),
+		Comment:    q.Comment.clone(db),
+		Setting:    q.Setting.clone(db),
+		Storage:    q.Storage.clone(db),
+		User:       q.User.clone(db),
+		Website:    q.Website.clone(db),
 	}
 }
 
@@ -56,27 +62,33 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:      db,
-		Comment: q.Comment.replaceDB(db),
-		Setting: q.Setting.replaceDB(db),
-		User:    q.User.replaceDB(db),
-		Website: q.Website.replaceDB(db),
+		db:         db,
+		Attachment: q.Attachment.replaceDB(db),
+		Comment:    q.Comment.replaceDB(db),
+		Setting:    q.Setting.replaceDB(db),
+		Storage:    q.Storage.replaceDB(db),
+		User:       q.User.replaceDB(db),
+		Website:    q.Website.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Comment ICommentDo
-	Setting ISettingDo
-	User    IUserDo
-	Website IWebsiteDo
+	Attachment IAttachmentDo
+	Comment    ICommentDo
+	Setting    ISettingDo
+	Storage    IStorageDo
+	User       IUserDo
+	Website    IWebsiteDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Comment: q.Comment.WithContext(ctx),
-		Setting: q.Setting.WithContext(ctx),
-		User:    q.User.WithContext(ctx),
-		Website: q.Website.WithContext(ctx),
+		Attachment: q.Attachment.WithContext(ctx),
+		Comment:    q.Comment.WithContext(ctx),
+		Setting:    q.Setting.WithContext(ctx),
+		Storage:    q.Storage.WithContext(ctx),
+		User:       q.User.WithContext(ctx),
+		Website:    q.Website.WithContext(ctx),
 	}
 }
 

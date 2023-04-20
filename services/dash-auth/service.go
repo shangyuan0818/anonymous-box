@@ -215,7 +215,7 @@ func (s *AuthServiceImpl) ChangePassword(ctx context.Context, req *dash.ChangePa
 
 	// update password
 	user.Password = string(hashedNewPassword)
-	if err := s.UserRepo.Update(ctx, user); err != nil {
+	if err := s.UserRepo.UpdateByID(ctx, user.ID, user); err != nil {
 		logger.WithError(err).Error("update user failed")
 		return nil, err
 	}
@@ -266,7 +266,7 @@ func (s *AuthServiceImpl) ResetPassword(ctx context.Context, req *dash.ResetPass
 
 	// update password
 	user.Password = string(hashedNewPassword)
-	if err := s.UserRepo.Update(ctx, user); err != nil {
+	if err := s.UserRepo.UpdateByID(ctx, user.ID, user); err != nil {
 		logger.WithError(err).Error("update user failed")
 		return nil, err
 	}

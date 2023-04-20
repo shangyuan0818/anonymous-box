@@ -12,7 +12,7 @@ import (
 
 type CommentRepo interface {
 	GetByID(ctx context.Context, id uint64) (*model.Comment, error)                                            // GetByID returns the comment with the specified comment ID.
-	ListByWebsiteID(ctx context.Context, websiteID uint64, limit, offset int) ([]*model.Comment, int64, error) // ListByWebsiteID returns the list of comments with the specified website ID.
+	ListByWebsiteID(ctx context.Context, websiteID uint64, offset, limit int) ([]*model.Comment, int64, error) // ListByWebsiteID returns the list of comments with the specified website ID.
 	CreateByWebsiteID(ctx context.Context, websiteID uint64, comment *model.Comment) error                     // CreateByWebsiteID creates a new comment with the specified website ID.
 	UpdateContentByID(ctx context.Context, id uint64, content string) error                                    // UpdateContentByID updates the content of the comment with the specified comment ID.
 	DeleteByIDAndUser(ctx context.Context, id, userId uint64) error                                            // DeleteByID deletes the comment with the specified comment ID.
@@ -44,7 +44,7 @@ func (r commentRepo) ListByWebsiteID(ctx context.Context, websiteID uint64, offs
 	comments, count, err := r.Query.Comment.
 		WithContext(ctx).
 		Where(r.Query.Comment.WebsiteRefer.Eq(websiteID)).
-		FindByPage(limit, offset)
+		FindByPage(offset, limit)
 	if err != nil {
 		span.RecordError(err)
 		return nil, 0, err

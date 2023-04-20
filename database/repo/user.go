@@ -19,7 +19,7 @@ type UserRepo interface {
 	GetByEmail(ctx context.Context, email string) (*model.User, error)
 
 	Create(ctx context.Context, user *model.User) error
-	Update(ctx context.Context, user *model.User) error
+	UpdateByID(ctx context.Context, id uint64, user *model.User) error
 	UpdatePassword(ctx context.Context, id uint64, password string) error
 	Delete(ctx context.Context, id uint64) error
 }
@@ -103,16 +103,18 @@ func (r *userRepo) Create(ctx context.Context, user *model.User) error {
 	return nil
 }
 
-// Update implements UserRepo.Update.
-func (r *userRepo) Update(ctx context.Context, user *model.User) error {
+// UpdateByID implements UserRepo.UpdateByID.
+func (r *userRepo) UpdateByID(ctx context.Context, id uint64, user *model.User) error {
 	ctx, span := tracer.Start(ctx, "update-user")
 	defer span.End()
 
-	if err := r.Cache.Delete(ctx, fmt.Sprint("database:user:id:", user.ID)); err != nil {
+	if err := r.Cache.Delete(ctx, fmt.Sprint("database:user:id:", id)); err != nil {
 		return err
 	}
 
-	if _, err := r.Query.User.WithContext(ctx).Updates(user); err != nil {
+	if _, err := r.Query.User.WithContext(ctx).
+		Where(r.Query.User.ID.Eq(id)).
+		Updates(user); err != nil {
 		return err
 	}
 

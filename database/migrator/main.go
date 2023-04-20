@@ -46,6 +46,8 @@ func main() {
 		&model.Setting{},
 		&model.Website{},
 		&model.Comment{},
+		&model.Attachment{},
+		&model.Storage{},
 	); err != nil {
 		logrus.WithError(err).Fatal("failed to migrate database")
 		return
