@@ -121,7 +121,7 @@ func (s *AuthServiceImpl) Register(ctx context.Context, req *dash.RegisterReques
 		return nil, ErrRegisterNotAllowed
 	}
 
-	// check verification code if require
+	// check verification code if you require
 	if requireEmailVerify, err := s.SettingRepo.GetBoolByName(ctx, "auth_require_email_verify"); err != nil {
 		logger.WithError(err).Error("query setting failed")
 		return nil, err

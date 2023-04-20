@@ -20,6 +20,11 @@ message RegisterRequest {
   string email = 2;
   string password = 3;
   string verification_code = 4;
+
+  string first_name = 5;
+  string last_name = 6;
+  string location = 7;
+  string bio = 8;
 }
 
 message ChangePasswordRequest {

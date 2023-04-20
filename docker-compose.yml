@@ -188,7 +188,7 @@ services:
   email-service-consumer:
     hostname: email-service-consumer
     deploy:
-      replicas: 3
+      replicas: 2
     build:
       context: .
       dockerfile: docker/service/Dockerfile

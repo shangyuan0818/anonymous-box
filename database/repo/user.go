@@ -20,6 +20,7 @@ type UserRepo interface {
 
 	Create(ctx context.Context, user *model.User) error
 	Update(ctx context.Context, user *model.User) error
+	UpdatePassword(ctx context.Context, id uint64, password string) error
 	Delete(ctx context.Context, id uint64) error
 }
 
@@ -112,6 +113,22 @@ func (r *userRepo) Update(ctx context.Context, user *model.User) error {
 	}
 
 	if _, err := r.Query.User.WithContext(ctx).Updates(user); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UpdatePassword implements UserRepo.UpdatePassword.
+func (r *userRepo) UpdatePassword(ctx context.Context, id uint64, password string) error {
+	ctx, span := tracer.Start(ctx, "update-user-password")
+	defer span.End()
+
+	if err := r.Cache.Delete(ctx, fmt.Sprint("database:user:id:", id)); err != nil {
+		return err
+	}
+
+	if _, err := r.Query.User.WithContext(ctx).Where(r.Query.User.ID.Eq(id)).Update(r.Query.User.Password, password); err != nil {
 		return err
 	}
 

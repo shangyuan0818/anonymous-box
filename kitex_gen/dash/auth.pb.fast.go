@@ -105,6 +105,26 @@ func (x *RegisterRequest) FastRead(buf []byte, _type int8, number int32) (offset
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 5:
+		offset, err = x.fastReadField5(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 6:
+		offset, err = x.fastReadField6(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 7:
+		offset, err = x.fastReadField7(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 8:
+		offset, err = x.fastReadField8(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -135,6 +155,26 @@ func (x *RegisterRequest) fastReadField3(buf []byte, _type int8) (offset int, er
 
 func (x *RegisterRequest) fastReadField4(buf []byte, _type int8) (offset int, err error) {
 	x.VerificationCode, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *RegisterRequest) fastReadField5(buf []byte, _type int8) (offset int, err error) {
+	x.FirstName, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *RegisterRequest) fastReadField6(buf []byte, _type int8) (offset int, err error) {
+	x.LastName, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *RegisterRequest) fastReadField7(buf []byte, _type int8) (offset int, err error) {
+	x.Location, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *RegisterRequest) fastReadField8(buf []byte, _type int8) (offset int, err error) {
+	x.Bio, offset, err = fastpb.ReadString(buf, _type)
 	return offset, err
 }
 
@@ -386,6 +426,10 @@ func (x *RegisterRequest) FastWrite(buf []byte) (offset int) {
 	offset += x.fastWriteField2(buf[offset:])
 	offset += x.fastWriteField3(buf[offset:])
 	offset += x.fastWriteField4(buf[offset:])
+	offset += x.fastWriteField5(buf[offset:])
+	offset += x.fastWriteField6(buf[offset:])
+	offset += x.fastWriteField7(buf[offset:])
+	offset += x.fastWriteField8(buf[offset:])
 	return offset
 }
 
@@ -418,6 +462,38 @@ func (x *RegisterRequest) fastWriteField4(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteString(buf[offset:], 4, x.GetVerificationCode())
+	return offset
+}
+
+func (x *RegisterRequest) fastWriteField5(buf []byte) (offset int) {
+	if x.FirstName == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 5, x.GetFirstName())
+	return offset
+}
+
+func (x *RegisterRequest) fastWriteField6(buf []byte) (offset int) {
+	if x.LastName == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 6, x.GetLastName())
+	return offset
+}
+
+func (x *RegisterRequest) fastWriteField7(buf []byte) (offset int) {
+	if x.Location == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 7, x.GetLocation())
+	return offset
+}
+
+func (x *RegisterRequest) fastWriteField8(buf []byte) (offset int) {
+	if x.Bio == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 8, x.GetBio())
 	return offset
 }
 
@@ -615,6 +691,10 @@ func (x *RegisterRequest) Size() (n int) {
 	n += x.sizeField2()
 	n += x.sizeField3()
 	n += x.sizeField4()
+	n += x.sizeField5()
+	n += x.sizeField6()
+	n += x.sizeField7()
+	n += x.sizeField8()
 	return n
 }
 
@@ -647,6 +727,38 @@ func (x *RegisterRequest) sizeField4() (n int) {
 		return n
 	}
 	n += fastpb.SizeString(4, x.GetVerificationCode())
+	return n
+}
+
+func (x *RegisterRequest) sizeField5() (n int) {
+	if x.FirstName == "" {
+		return n
+	}
+	n += fastpb.SizeString(5, x.GetFirstName())
+	return n
+}
+
+func (x *RegisterRequest) sizeField6() (n int) {
+	if x.LastName == "" {
+		return n
+	}
+	n += fastpb.SizeString(6, x.GetLastName())
+	return n
+}
+
+func (x *RegisterRequest) sizeField7() (n int) {
+	if x.Location == "" {
+		return n
+	}
+	n += fastpb.SizeString(7, x.GetLocation())
+	return n
+}
+
+func (x *RegisterRequest) sizeField8() (n int) {
+	if x.Bio == "" {
+		return n
+	}
+	n += fastpb.SizeString(8, x.GetBio())
 	return n
 }
 
@@ -801,6 +913,10 @@ var fieldIDToName_RegisterRequest = map[int32]string{
 	2: "Email",
 	3: "Password",
 	4: "VerificationCode",
+	5: "FirstName",
+	6: "LastName",
+	7: "Location",
+	8: "Bio",
 }
 
 var fieldIDToName_ChangePasswordRequest = map[int32]string{

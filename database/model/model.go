@@ -6,8 +6,8 @@ import (
 )
 
 type Model struct {
-	ID        uint64       `gorm:"primarykey"`
-	CreatedAt time.Time    `gorm:"autoCreateTime"`
+	ID        uint64       `gorm:"<-:create;primarykey"`
+	CreatedAt time.Time    `gorm:"<-:create;autoCreateTime"`
 	UpdatedAt time.Time    `gorm:"autoUpdateTime"`
 	DeletedAt sql.NullTime `gorm:"index"`
 }
