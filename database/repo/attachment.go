@@ -52,6 +52,7 @@ func (r *attachmentRepo) Create(ctx context.Context, storageId uint64, attachmen
 
 	attachment.StorageID = storageId
 
+	// Create attachment.
 	if err := r.Query.Attachment.WithContext(ctx).Create(attachment); err != nil {
 		return err
 	}
@@ -66,6 +67,7 @@ func (r *attachmentRepo) DeleteByID(ctx context.Context, id uint64) error {
 	ctx, span := tracer.Start(ctx, "delete-attachment-by-id")
 	defer span.End()
 
+	// Delete attachment.
 	if _, err := r.Query.Attachment.WithContext(ctx).Where(r.Query.Attachment.ID.Eq(id)).Delete(); err != nil {
 		return err
 	}

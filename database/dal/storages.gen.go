@@ -33,8 +33,9 @@ func newStorage(db *gorm.DB, opts ...gen.DOOption) storage {
 	_storage.DeletedAt = field.NewField(tableName, "deleted_at")
 	_storage.Type = field.NewString(tableName, "type")
 	_storage.Name = field.NewString(tableName, "name")
+	_storage.UsedSize = field.NewInt64(tableName, "used_size")
 	_storage.MaxSize = field.NewInt64(tableName, "max_size")
-	_storage.IsUsed = field.NewBool(tableName, "is_used")
+	_storage.IsInUse = field.NewBool(tableName, "is_in_use")
 	_storage.IsPublic = field.NewBool(tableName, "is_public")
 	_storage.S3Endpoint = field.NewString(tableName, "s3_endpoint")
 	_storage.S3AccessKeyID = field.NewString(tableName, "s3_access_key_id")
@@ -63,8 +64,9 @@ type storage struct {
 	DeletedAt         field.Field
 	Type              field.String
 	Name              field.String
+	UsedSize          field.Int64
 	MaxSize           field.Int64
-	IsUsed            field.Bool
+	IsInUse           field.Bool
 	IsPublic          field.Bool
 	S3Endpoint        field.String
 	S3AccessKeyID     field.String
@@ -99,8 +101,9 @@ func (s *storage) updateTableName(table string) *storage {
 	s.DeletedAt = field.NewField(table, "deleted_at")
 	s.Type = field.NewString(table, "type")
 	s.Name = field.NewString(table, "name")
+	s.UsedSize = field.NewInt64(table, "used_size")
 	s.MaxSize = field.NewInt64(table, "max_size")
-	s.IsUsed = field.NewBool(table, "is_used")
+	s.IsInUse = field.NewBool(table, "is_in_use")
 	s.IsPublic = field.NewBool(table, "is_public")
 	s.S3Endpoint = field.NewString(table, "s3_endpoint")
 	s.S3AccessKeyID = field.NewString(table, "s3_access_key_id")
@@ -135,15 +138,16 @@ func (s *storage) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *storage) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 20)
+	s.fieldMap = make(map[string]field.Expr, 21)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
 	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["type"] = s.Type
 	s.fieldMap["name"] = s.Name
+	s.fieldMap["used_size"] = s.UsedSize
 	s.fieldMap["max_size"] = s.MaxSize
-	s.fieldMap["is_used"] = s.IsUsed
+	s.fieldMap["is_in_use"] = s.IsInUse
 	s.fieldMap["is_public"] = s.IsPublic
 	s.fieldMap["s3_endpoint"] = s.S3Endpoint
 	s.fieldMap["s3_access_key_id"] = s.S3AccessKeyID

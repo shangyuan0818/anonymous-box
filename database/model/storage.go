@@ -6,8 +6,9 @@ type Storage struct {
 
 	// Common
 	Name     string `gorm:"not null"`                     // name of the storage
+	UsedSize int64  `gorm:"not null;default:0"`           // in bytes (0 by default)
 	MaxSize  int64  `gorm:"not null;default:10737418240"` // in bytes (10GB by default)
-	IsUsed   bool   `gorm:"not null;default:true"`        // is used in the system
+	IsInUse  bool   `gorm:"not null;default:true"`        // is in use (true by default)
 	IsPublic bool   `gorm:"not null;default:false"`       // is public accessible, not used for local storage
 
 	// S3
