@@ -5,9 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/star-horizon/anonymous-box-saas/config"
 
-	"github.com/kelseyhightower/envconfig"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
@@ -15,29 +13,14 @@ import (
 	"go.uber.org/fx"
 	"gopkg.in/mail.v2"
 
+	"github.com/star-horizon/anonymous-box-saas/config"
 	"github.com/star-horizon/anonymous-box-saas/database/repo"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
 )
 
-type mailEnv struct {
-	Host     string `default:"localhost"`
-	Port     int    `default:"25"`
-	Username string `default:""`
-	Password string `default:""`
-	SSL      bool   `default:"false"`
-	TLS      bool   `default:"false"`
-}
-
-func RunConsumer(ctx context.Context, ch *amqp.Channel, lc fx.Lifecycle, settingRepo repo.SettingRepo) error {
+func RunConsumer(ctx context.Context, ch *amqp.Channel, lc fx.Lifecycle, settingRepo repo.SettingRepo, env *config.EmailEnv) error {
 	ctx, span := tracer.Start(ctx, "init-consumer")
 	defer span.End()
-
-	// get env
-	var env mailEnv
-	if err := envconfig.Process("EMAIL", &env); err != nil {
-		logrus.WithContext(ctx).WithError(err).Fatal("process env failed")
-		return err
-	}
 
 	// declare exchange
 	if err := ch.ExchangeDeclare(MQExchangeName, "direct", true, false, false, false, nil); err != nil {

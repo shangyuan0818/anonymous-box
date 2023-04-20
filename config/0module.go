@@ -14,5 +14,7 @@ func Module() fx.Option {
 		fx.Provide(NewEnvConfig("TRACE", TraceEnv{})),
 		fx.Provide(NewEnvConfig("LOGGER", LoggerEnv{})),
 		fx.Provide(NewEnvConfig("SERVICE", ServiceEnv{})),
+		fx.Provide(NewEnvConfig("EMAIL", EmailEnv{})),
+		fx.Provide(NewEnvConfig("SERVER", ServerEnv{})),
 	)
 }

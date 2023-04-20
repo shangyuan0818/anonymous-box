@@ -57,3 +57,22 @@ type ServiceEnv struct {
 	Network string `default:"tcp"`
 	Address string `default:"0.0.0.0:8888"`
 }
+
+type EmailEnv struct {
+	Host     string `default:"localhost"`
+	Port     int    `default:"25"`
+	Username string `default:""`
+	Password string `default:""`
+	SSL      bool   `default:"false"`
+	TLS      bool   `default:"false"`
+}
+
+type ServerEnv struct {
+	Debug            bool     `envconfig:"DEBUG" default:"false"`
+	AllowOrigins     []string `envconfig:"CORS_ALLOW_ORIGINS" split_words:"true" default:"*"`
+	AllowMethods     []string `envconfig:"CORS_ALLOW_METHODS" split_words:"true" default:"GET,POST,PUT,DELETE,OPTIONS"`
+	AllowHeaders     []string `envconfig:"CORS_ALLOW_HEADERS" split_words:"true" default:"Authorization,Content-Type"`
+	ExposeHeaders    []string `envconfig:"CORS_EXPOSE_HEADERS" split_words:"true" default:""`
+	AllowCredentials bool     `envconfig:"CORS_ALLOW_CREDENTIALS" split_words:"true" default:"true"`
+	MaxAge           int      `envconfig:"CORS_MAX_AGE" split_words:"true" default:"3600"`
+}
