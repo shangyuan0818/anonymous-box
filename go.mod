@@ -7,7 +7,7 @@ require (
 	github.com/cloudwego/hertz v0.6.2
 	github.com/cloudwego/kitex v0.5.2
 	github.com/dgraph-io/ristretto v0.1.1
-	github.com/golang-jwt/jwt/v5 v5.0.0-rc.2
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/consul/api v1.20.0
 	github.com/hertz-contrib/obs-opentelemetry/logging/logrus v0.1.1
