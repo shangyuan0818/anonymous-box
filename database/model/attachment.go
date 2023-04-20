@@ -10,4 +10,5 @@ type Attachment struct {
 	FileName        string `gorm:"not null"` // original file name
 	FileSize        int64  `gorm:"not null"` // in bytes
 	FileContentType string `gorm:"not null"` // MIME type
+	FileSha256Sum   string `gorm:"not null"` // SHA256 sum of the file
 }

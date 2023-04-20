@@ -14,6 +14,7 @@ kitex-gen:
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/dash/verify.proto
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/dash/website.proto
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/dash/comment.proto
+	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/dash/attachment.proto
 
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/box/website.proto
 	@kitex -module github.com/star-horizon/anonymous-box-saas idl/api/box/comment.proto

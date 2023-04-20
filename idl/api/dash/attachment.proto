@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package api.dash;
+option go_package = "api";
+
+import "idl/base/empty.proto";
+import "idl/base/timestamp.proto";
+
+message RequestAttachmentUploadRequest {
+  string token = 1;
+  string name = 2;
+  string type = 3;
+  int64 size = 4;
+}
+
+message RequestAttachmentUploadResponse {
+  uint64 id = 1;
+  base.Timestamp expires_at = 2;
+  string upload_token = 3;
+}
+
+message UploadAttachmentRequest {
+  string upload_token = 1;
+  bytes content = 2;
+}
+
+message UploadAttachmentResponse {
+  uint64 id = 1;
+  string url = 2;
+}
+
+message GetAttachmentRequest {
+  string token = 1;
+  uint64 id = 2;
+  string ip = 3;
+}
+
+message GetAttachmentResponse {
+  uint64 id = 1;
+  string name = 2;
+  string type = 3;
+  int64 size = 4;
+  string url = 5;
+}
+
+message DeleteAttachmentRequest {
+  string token = 1;
+  uint64 id = 2;
+}
+
+service AttachmentService {
+  rpc RequestAttachmentUpload(RequestAttachmentUploadRequest) returns (RequestAttachmentUploadResponse);
+  rpc UploadAttachment(stream UploadAttachmentRequest) returns (UploadAttachmentResponse);
+  rpc GetAttachment(GetAttachmentRequest) returns (GetAttachmentResponse);
+  rpc DeleteAttachment(DeleteAttachmentRequest) returns (base.Empty);
+}

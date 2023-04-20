@@ -37,6 +37,7 @@ func newAttachment(db *gorm.DB, opts ...gen.DOOption) attachment {
 	_attachment.FileName = field.NewString(tableName, "file_name")
 	_attachment.FileSize = field.NewInt64(tableName, "file_size")
 	_attachment.FileContentType = field.NewString(tableName, "file_content_type")
+	_attachment.FileSha256Sum = field.NewString(tableName, "file_sha256_sum")
 
 	_attachment.fillFieldMap()
 
@@ -57,6 +58,7 @@ type attachment struct {
 	FileName        field.String
 	FileSize        field.Int64
 	FileContentType field.String
+	FileSha256Sum   field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -83,6 +85,7 @@ func (a *attachment) updateTableName(table string) *attachment {
 	a.FileName = field.NewString(table, "file_name")
 	a.FileSize = field.NewInt64(table, "file_size")
 	a.FileContentType = field.NewString(table, "file_content_type")
+	a.FileSha256Sum = field.NewString(table, "file_sha256_sum")
 
 	a.fillFieldMap()
 
@@ -107,7 +110,7 @@ func (a *attachment) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *attachment) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 10)
+	a.fieldMap = make(map[string]field.Expr, 11)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
@@ -118,6 +121,7 @@ func (a *attachment) fillFieldMap() {
 	a.fieldMap["file_name"] = a.FileName
 	a.fieldMap["file_size"] = a.FileSize
 	a.fieldMap["file_content_type"] = a.FileContentType
+	a.fieldMap["file_sha256_sum"] = a.FileSha256Sum
 }
 
 func (a attachment) clone(db *gorm.DB) attachment {
