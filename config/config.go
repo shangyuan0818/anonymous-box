@@ -65,6 +65,7 @@ type EmailEnv struct {
 	Password string `default:""`
 	SSL      bool   `default:"false"`
 	TLS      bool   `default:"false"`
+	Timeout  int    `default:"10"`
 }
 
 type ServerEnv struct {

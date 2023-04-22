@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
@@ -50,19 +51,24 @@ func RunConsumer(ctx context.Context, conn *amqp.Connection, lc fx.Lifecycle, se
 	}
 
 	// init mail dialer
+	span.AddEvent("Make Mail Dialer", trace.WithAttributes(
+		attribute.String("host", env.Host),
+		attribute.Int("port", env.Port),
+		attribute.String("username", env.Username),
+	))
 	dialer := mail.NewDialer(
 		env.Host,
 		env.Port,
 		env.Username,
 		env.Password,
 	)
+	dialer.Timeout = time.Duration(env.Timeout) * time.Second
 
 	// ssl
 	dialer.SSL = env.SSL
 
 	// tls
 	if env.TLS {
-		dialer.SSL = false
 		dialer.TLSConfig = &tls.Config{
 			ServerName:         env.Host,
 			InsecureSkipVerify: true,
@@ -112,7 +118,6 @@ func RunConsumer(ctx context.Context, conn *amqp.Connection, lc fx.Lifecycle, se
 			return
 		}
 
-		span.AddEvent("Get Sender Address")
 		fromAddress, err := settingRepo.GetByName(ctx, "email_from_address")
 		if err != nil {
 			logrus.WithContext(ctx).WithError(err).Error("get from address failed")
@@ -120,16 +125,22 @@ func RunConsumer(ctx context.Context, conn *amqp.Connection, lc fx.Lifecycle, se
 			delivery.Nack(false, false)
 			return
 		}
+		span.AddEvent("Get Sender Address", trace.WithAttributes(
+			attribute.String("email.from", fromAddress),
+		))
 
-		span.AddEvent("Make Email")
-		m := mail.NewMessage(
-			mail.SetCharset("UTF-8"),
-			mail.SetEncoding(mail.Base64),
-		)
+		m := mail.NewMessage()
 		m.SetAddressHeader("From", fromAddress, email.From)
 		m.SetAddressHeader("To", email.To, email.To)
 		m.SetHeader("Subject", email.Subject)
 		m.SetBody(email.ContentType, email.Body)
+		span.AddEvent("Make Email", trace.WithAttributes(
+			attribute.String("email.from", email.From),
+			attribute.String("email.to", email.To),
+			attribute.String("email.subject", email.Subject),
+			attribute.String("email.content-type", email.ContentType),
+			attribute.String("email.body", email.Body),
+		))
 
 		// send email
 		if err := dialer.DialAndSend(m); err != nil {
@@ -167,6 +178,7 @@ func RunConsumer(ctx context.Context, conn *amqp.Connection, lc fx.Lifecycle, se
 
 			if err := ch.Cancel(consumerName, false); err != nil {
 				logrus.WithContext(ctx).WithError(err).Error("cancel consumer failed")
+				return err
 			}
 
 			return nil

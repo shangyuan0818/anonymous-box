@@ -214,11 +214,11 @@ services:
       MQ_USER: anonymous_box_saas
       MQ_PASSWORD: anonymous_box_saas
       EMAIL_HOST: smtp.mailgun.org
-      EMAIL_PORT: 465
+      EMAIL_PORT: 587
       EMAIL_USERNAME: postmaster@sandboxa0a74d2cfac7415e95aae5f78ef3005e.mailgun.org
       EMAIL_PASSWORD: c4e4962f6a03a9fc82777febbf1f08f4-2de3d545-812f5b95
       EMAIL_SSL: false
-      EMAIL_TLS: true
+      EMAIL_TLS: false
     restart: always
 
 
