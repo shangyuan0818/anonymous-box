@@ -3,18 +3,23 @@ package email
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 
+	"github.com/star-horizon/anonymous-box-saas/config"
 	"github.com/star-horizon/anonymous-box-saas/database/dal"
 	"github.com/star-horizon/anonymous-box-saas/database/model"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/base"
 	"github.com/star-horizon/anonymous-box-saas/kitex_gen/dash"
+	"github.com/star-horizon/anonymous-box-saas/pkg/util"
 	"github.com/star-horizon/anonymous-box-saas/services/email-consumer"
 )
 
@@ -37,7 +42,7 @@ func NewEmailServiceImpl(impl EmailServiceImpl) dash.EmailService {
 
 // SendMail implements the EmailServiceImpl interface.
 func (s *EmailServiceImpl) SendMail(ctx context.Context, req *dash.SendMailRequest) (*base.Empty, error) {
-	ctx, span := tracer.Start(ctx, "send-mail")
+	ctx, span := tracer.Start(ctx, "send-mail", trace.WithSpanKind(trace.SpanKindProducer))
 	defer span.End()
 
 	settingSlice, err := s.Q.Setting.WithContext(ctx).
@@ -45,6 +50,7 @@ func (s *EmailServiceImpl) SendMail(ctx context.Context, req *dash.SendMailReque
 		Find()
 	if err != nil {
 		logrus.WithContext(ctx).WithError(err).Error("query setting failed")
+		span.RecordError(err)
 		return nil, err
 	}
 
@@ -73,8 +79,12 @@ func (s *EmailServiceImpl) SendMail(ctx context.Context, req *dash.SendMailReque
 	data, err := json.Marshal(&m)
 	if err != nil {
 		logrus.WithContext(ctx).WithError(err).Error("marshal email message failed")
+		span.RecordError(err)
 		return nil, err
 	}
+
+	mapCarrier := propagation.MapCarrier{}
+	propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}).Inject(ctx, &mapCarrier)
 
 	if err := s.MQ.PublishWithContext(
 		ctx,
@@ -85,12 +95,15 @@ func (s *EmailServiceImpl) SendMail(ctx context.Context, req *dash.SendMailReque
 		amqp.Publishing{
 			ContentType: "application/json",
 			Body:        data,
+			Timestamp:   time.Now(),
+			AppId:       config.ServiceInstanceID,
 			Headers: amqp.Table{
-				"trace-id": span.SpanContext().TraceID().String(),
+				"trace-context": amqp.Table(util.TypedMapToInterfaceMap(mapCarrier)),
 			},
 		},
 	); err != nil {
 		logrus.WithContext(ctx).WithError(err).Error("publish message failed")
+		span.RecordError(err)
 		return nil, err
 	}
 

@@ -2,6 +2,8 @@ package trace
 
 import (
 	"context"
+	"go.opentelemetry.io/otel/propagation"
+	"go.uber.org/fx"
 
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -16,7 +18,7 @@ import (
 
 var tracer = otel.Tracer("internal.trace")
 
-func NewTracerProvider(ctx context.Context, serviceName string, exporter tracesdk.SpanExporter) *tracesdk.TracerProvider {
+func NewTracerProvider(ctx context.Context, serviceName string, exporter tracesdk.SpanExporter, lc fx.Lifecycle) *tracesdk.TracerProvider {
 	ctx, span := tracer.Start(ctx, "new-tracer-provider")
 	defer span.End()
 
@@ -35,6 +37,12 @@ func NewTracerProvider(ctx context.Context, serviceName string, exporter tracesd
 		)),
 	)
 
+	lc.Append(fx.Hook{
+		OnStop: func(ctx context.Context) error {
+			return tp.Shutdown(ctx)
+		},
+	})
+
 	return tp
 }
 
@@ -43,6 +51,7 @@ func InitTracer(ctx context.Context, tracerProvider *tracesdk.TracerProvider) er
 	defer span.End()
 
 	otel.SetTracerProvider(tracerProvider)
+	otel.SetTextMapPropagator(propagation.TraceContext{})
 	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
 		logrus.PanicLevel,
 		logrus.FatalLevel,

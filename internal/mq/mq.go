@@ -13,8 +13,8 @@ import (
 
 var tracer = otel.Tracer("internal.mq")
 
-func InitMQ(ctx context.Context, e *config.MqEnv) (*amqp.Channel, error) {
-	ctx, span := tracer.Start(ctx, "InitMQ")
+func NewConnection(ctx context.Context, e *config.MqEnv) (*amqp.Connection, error) {
+	ctx, span := tracer.Start(ctx, "new-amqp-connection")
 	defer span.End()
 
 	// init mq
@@ -25,6 +25,13 @@ func InitMQ(ctx context.Context, e *config.MqEnv) (*amqp.Channel, error) {
 		logrus.WithContext(ctx).WithError(err).Fatal("init mq failed")
 		return nil, err
 	}
+
+	return conn, nil
+}
+
+func NewChannel(ctx context.Context, conn *amqp.Connection) (*amqp.Channel, error) {
+	ctx, span := tracer.Start(ctx, "new-amqp-channel")
+	defer span.End()
 
 	ch, err := conn.Channel()
 	if err != nil {

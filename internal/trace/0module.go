@@ -8,6 +8,5 @@ func Module() fx.Option {
 		fx.Provide(NewExporter),
 		fx.Provide(NewTracerProvider),
 		fx.Invoke(InitTracer),
-		fx.Invoke(KitexOpenTelemetryProvider),
 	)
 }

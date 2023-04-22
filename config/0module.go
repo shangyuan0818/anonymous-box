@@ -5,6 +5,7 @@ import "go.uber.org/fx"
 func Module() fx.Option {
 	return fx.Module(
 		"config",
+		fx.Invoke(LoadDotEnv),
 		fx.Provide(NewEnvConfig("DB", DatabaseEnv{})),
 		fx.Provide(NewEnvConfig("CONSUL", ConsulEnv{})),
 		fx.Provide(NewEnvConfig("HASHIDS", HashidsEnv{})),

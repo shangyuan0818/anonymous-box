@@ -7,8 +7,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func init() {
-	ctx, span := tracer.Start(context.Background(), "init-dotenv")
+func LoadDotEnv(ctx context.Context) {
+	ctx, span := tracer.Start(ctx, "load-dotenv")
 	defer span.End()
 
 	if err := godotenv.Load(".env"); err != nil {
