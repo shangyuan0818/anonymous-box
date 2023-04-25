@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/fx"
@@ -20,6 +21,7 @@ import (
 )
 
 var tracer = otel.Tracer("dash-auth-service")
+var validate *validator.Validate
 
 const ServiceName = "dash-auth-service"
 
@@ -37,53 +39,44 @@ func NewAuthServiceImpl(impl AuthServiceImpl) dash.AuthService {
 	return &impl
 }
 
-// UsernameLogin implements the dash.AuthService interface.
-func (s *AuthServiceImpl) UsernameLogin(ctx context.Context, req *dash.UsernameLoginRequest) (*dash.AuthToken, error) {
+var (
+	ErrInvalidCredential = errors.New("invalid credential")
+)
+
+// Login implements the dash.AuthService interface.
+func (s *AuthServiceImpl) Login(ctx context.Context, req *dash.LoginRequest) (*dash.AuthToken, error) {
 	ctx, span := tracer.Start(ctx, "username-auth")
 	defer span.End()
 
 	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
-		"user.username": req.GetUsername(),
+		"user.credential": req.GetCredential(),
 	})
 
-	user, err := s.UserRepo.GetByUsername(ctx, req.GetUsername())
+	var (
+		user *model.User
+		err  error
+	)
+
+	switch nil {
+	case validate.Var(req.GetCredential(), "required,email"):
+		span.AddEvent("Login by email")
+		logger.Debugf("Login by email: %s", req.GetCredential())
+
+		user, err = s.UserRepo.GetByEmail(ctx, req.GetCredential())
+	case validate.Var(req.GetCredential(), "required,alphanum"):
+		span.AddEvent("Login by username")
+		logger.Debugf("Login by username: %s", req.GetCredential())
+
+		user, err = s.UserRepo.GetByUsername(ctx, req.GetCredential())
+	default:
+		logger.WithError(ErrInvalidCredential).Errorf("invalid credential: %s", req.GetCredential())
+		return nil, ErrInvalidCredential
+	}
 	if err != nil {
 		logger.WithError(err).Error("query user failed")
 		return nil, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.GetPassword())); err != nil {
-		logger.WithError(err).Error("password not match")
-		return nil, err
-	}
-
-	tokenString, err := s.JwtSvc.GenerateToken(ctx, user.ID)
-	if err != nil {
-		logger.WithError(err).Error("sign token failed")
-		return nil, err
-	}
-
-	return &dash.AuthToken{
-		Token: tokenString,
-	}, nil
-}
-
-// EmailLogin implements the dash.AuthService interface.
-func (s *AuthServiceImpl) EmailLogin(ctx context.Context, req *dash.EmailLoginRequest) (*dash.AuthToken, error) {
-	ctx, span := tracer.Start(ctx, "username-auth")
-	defer span.End()
-
-	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
-		"user.email": req.GetEmail(),
-	})
-
-	user, err := s.UserRepo.GetByUsername(ctx, req.GetEmail())
-	if err != nil {
-		logger.WithError(err).Error("query user failed")
-		return nil, err
-	}
-
-	// compare password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.GetPassword())); err != nil {
 		logger.WithError(err).Error("password not match")
 		return nil, err

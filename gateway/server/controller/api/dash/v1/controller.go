@@ -47,8 +47,7 @@ func BindRoutes(ctx context.Context, svc Services, params Params) {
 		{
 			authService.GET("/data", middleware.MustAuth(), svc.Auth.GetAuthData)
 
-			authService.POST("/login/username", svc.Auth.UsernameLogin)
-			authService.POST("/login/email", svc.Auth.EmailLogin)
+			authService.POST("/login", svc.Auth.Login)
 			authService.POST("/register", middleware.MustNotAuth(), svc.Auth.Register)
 			authService.POST("/change-password", middleware.MustAuth(), svc.Auth.ChangePassword)
 			authService.POST("/reset-password", middleware.MustNotAuth(), svc.Auth.ResetPassword)

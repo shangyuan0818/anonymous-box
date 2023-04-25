@@ -5,13 +5,8 @@ option go_package = "dash";
 
 import "idl/base/timestamp.proto";
 
-message UsernameLoginRequest {
-  string username = 1;
-  string password = 2;
-}
-
-message EmailLoginRequest {
-  string email = 1;
+message LoginRequest {
+  string credential = 1;
   string password = 2;
 }
 
@@ -53,8 +48,7 @@ message ServerAuthDataResponse {
 
 service AuthService {
   // user auth
-  rpc UsernameLogin(UsernameLoginRequest) returns (AuthToken); // Auth with username
-  rpc EmailLogin(EmailLoginRequest) returns (AuthToken); // Auth with email
+  rpc Login(LoginRequest) returns (AuthToken); // Auth with username
 
   // tool auth
   rpc Register(RegisterRequest) returns (AuthToken); // Register a new account

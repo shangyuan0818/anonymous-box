@@ -18,8 +18,7 @@ type Controller struct {
 }
 
 type Service interface {
-	UsernameLogin(ctx context.Context, c *app.RequestContext)  // UsernameLogin provides a method to log in with username.
-	EmailLogin(ctx context.Context, c *app.RequestContext)     // EmailLogin provides a method to log in with email.
+	Login(ctx context.Context, c *app.RequestContext)          // Login provides a method to log in.
 	Register(ctx context.Context, c *app.RequestContext)       // Register provides a method to register a new user.
 	ChangePassword(ctx context.Context, c *app.RequestContext) // ChangePassword provides a method to change password.
 	ResetPassword(ctx context.Context, c *app.RequestContext)  // ResetPassword provides a method to reset password.
