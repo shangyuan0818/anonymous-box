@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/go-playground/validator/v10"
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -26,6 +27,13 @@ func JwtParser() app.HandlerFunc {
 		}
 
 		authorization = strings.TrimPrefix(authorization, "Bearer ")
+		authorization = strings.TrimSpace(authorization)
+
+		if err := validator.New().Var(authorization, "required,jwt"); err != nil {
+			span.SetStatus(codes.Error, "invalid token")
+			span.RecordError(err)
+			return
+		}
 
 		c.Set("token", authorization)
 		span.SetStatus(codes.Ok, "token parsed")
@@ -37,7 +45,7 @@ func AuthDataParser(authClient authservice.Client) app.HandlerFunc {
 		ctx, span := tracer.Start(ctx, "auth-data-parser")
 		defer span.End()
 
-		token := strings.TrimSpace(c.GetString("token"))
+		token := c.GetString("token")
 		if lo.IsEmpty(token) {
 			span.SetStatus(codes.Unset, "token not found")
 			return

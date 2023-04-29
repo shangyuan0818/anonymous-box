@@ -8,6 +8,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"golang.org/x/crypto/bcrypt"
 
@@ -21,7 +23,7 @@ import (
 )
 
 var tracer = otel.Tracer("dash-auth-service")
-var validate *validator.Validate
+var validate = validator.New()
 
 const ServiceName = "dash-auth-service"
 
@@ -45,25 +47,26 @@ var (
 
 // Login implements the dash.AuthService interface.
 func (s *AuthServiceImpl) Login(ctx context.Context, req *dash.LoginRequest) (*dash.AuthToken, error) {
-	ctx, span := tracer.Start(ctx, "username-auth")
+	ctx, span := tracer.Start(ctx, "login", trace.WithAttributes(
+		attribute.String("payload.credential", req.GetCredential()),
+	))
 	defer span.End()
 
-	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
-		"user.credential": req.GetCredential(),
-	})
+	logger := logrus.WithContext(ctx)
 
 	var (
 		user *model.User
 		err  error
 	)
 
-	switch nil {
-	case validate.Var(req.GetCredential(), "required,email"):
+	span.AddEvent("check credential")
+	switch true {
+	case validate.Var(req.GetCredential(), "required,email") == nil:
 		span.AddEvent("Login by email")
 		logger.Debugf("Login by email: %s", req.GetCredential())
 
 		user, err = s.UserRepo.GetByEmail(ctx, req.GetCredential())
-	case validate.Var(req.GetCredential(), "required,alphanum"):
+	case validate.Var(req.GetCredential(), "required,alphanum") == nil:
 		span.AddEvent("Login by username")
 		logger.Debugf("Login by username: %s", req.GetCredential())
 
@@ -74,17 +77,20 @@ func (s *AuthServiceImpl) Login(ctx context.Context, req *dash.LoginRequest) (*d
 	}
 	if err != nil {
 		logger.WithError(err).Error("query user failed")
+		span.RecordError(err)
 		return nil, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.GetPassword())); err != nil {
 		logger.WithError(err).Error("password not match")
+		span.RecordError(err)
 		return nil, err
 	}
 
 	tokenString, err := s.JwtSvc.GenerateToken(ctx, user.ID)
 	if err != nil {
 		logger.WithError(err).Error("sign token failed")
+		span.RecordError(err)
 		return nil, err
 	}
 
