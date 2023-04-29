@@ -14,12 +14,14 @@ func (ctr *Controller) ApplyEmailVerify(ctx context.Context, c *app.RequestConte
 	ctx, span := tracer.Start(ctx, "apply-email-verify")
 	defer span.End()
 
+	span.AddEvent("parse-payload")
 	var payload verifyapi.ApplyEmailVerifyRequest
 	if err := c.Bind(&payload); err != nil {
 		c.JSON(400, serializer.ResponseError(err))
 		return
 	}
 
+	span.AddEvent("call-verify-service")
 	resp, err := ctr.VerifySvcClient.ApplyEmailVerify(ctx, &payload)
 	if err != nil {
 		c.JSON(500, serializer.ResponseError(err))

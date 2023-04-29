@@ -14,6 +14,7 @@ func (ctr *Controller) ChangePassword(ctx context.Context, c *app.RequestContext
 	ctx, span := tracer.Start(ctx, "change-password")
 	defer span.End()
 
+	span.AddEvent("parse-payload")
 	var payload authapi.ChangePasswordRequest
 	if err := c.Bind(&payload); err != nil {
 		span.RecordError(err)
@@ -22,6 +23,7 @@ func (ctr *Controller) ChangePassword(ctx context.Context, c *app.RequestContext
 	}
 	payload.Token = c.GetString("token")
 
+	span.AddEvent("call-auth-service")
 	resp, err := ctr.AuthSvcClient.ChangePassword(ctx, &payload)
 	if err != nil {
 		span.RecordError(err)

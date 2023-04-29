@@ -14,6 +14,7 @@ func (ctr *Controller) Register(ctx context.Context, c *app.RequestContext) {
 	ctx, span := tracer.Start(ctx, "register")
 	defer span.End()
 
+	span.AddEvent("parse-payload")
 	var payload authapi.RegisterRequest
 	if err := c.Bind(&payload); err != nil {
 		c.JSON(400, serializer.ResponseError(err))
@@ -21,6 +22,7 @@ func (ctr *Controller) Register(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	span.AddEvent("call-auth-service")
 	resp, err := ctr.AuthSvcClient.Register(ctx, &payload)
 	if err != nil {
 		c.JSON(500, serializer.ResponseError(err))

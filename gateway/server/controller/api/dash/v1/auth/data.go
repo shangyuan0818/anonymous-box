@@ -14,6 +14,7 @@ func (ctr *Controller) GetAuthData(ctx context.Context, c *app.RequestContext) {
 	ctx, span := tracer.Start(ctx, "get-auth-data")
 	defer span.End()
 
+	span.AddEvent("call-auth-service")
 	resp, err := ctr.AuthSvcClient.GetServerAuthData(ctx, &dash.AuthToken{
 		Token: c.GetString("token"),
 	})

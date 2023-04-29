@@ -13,6 +13,7 @@ func (ctr *Controller) CreateWebsite(ctx context.Context, c *app.RequestContext)
 	ctx, span := tracer.Start(ctx, "create-website")
 	defer span.End()
 
+	span.AddEvent("get-auth-data")
 	a, exist := c.Get("auth_data")
 	if !exist {
 		c.JSON(401, serializer.ErrorUnauthorized)
@@ -20,6 +21,7 @@ func (ctr *Controller) CreateWebsite(ctx context.Context, c *app.RequestContext)
 	}
 	authData := a.(*dash.ServerAuthDataResponse)
 
+	span.AddEvent("parse-payload")
 	var payload dash.CreateWebsiteRequest
 	if err := c.Bind(&payload); err != nil {
 		c.JSON(400, serializer.ResponseError(err))
@@ -27,6 +29,7 @@ func (ctr *Controller) CreateWebsite(ctx context.Context, c *app.RequestContext)
 	}
 	payload.UserId = authData.GetId()
 
+	span.AddEvent("call-website-service")
 	resp, err := ctr.WebsiteSvcClient.CreateWebsite(ctx, &payload)
 	if err != nil {
 		c.JSON(500, serializer.ResponseError(err))
