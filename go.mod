@@ -40,7 +40,7 @@ require (
 	gopkg.in/mail.v2 v2.3.1
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gen v0.3.22
-	gorm.io/gorm v1.25.0
+	gorm.io/gorm v1.25.1
 	gorm.io/plugin/dbresolver v1.4.1
 )
 
