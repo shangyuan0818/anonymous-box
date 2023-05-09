@@ -31,7 +31,7 @@ require (
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.1.21
 	github.com/uptrace/uptrace-go/extra/otellogrus v1.1.0
 	go.opentelemetry.io/otel v1.15.1
-	go.opentelemetry.io/otel/exporters/jaeger v1.15.0
+	go.opentelemetry.io/otel/exporters/jaeger v1.15.1
 	go.opentelemetry.io/otel/sdk v1.15.1
 	go.opentelemetry.io/otel/trace v1.15.1
 	go.uber.org/fx v1.19.2
