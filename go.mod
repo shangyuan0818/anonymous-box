@@ -26,21 +26,21 @@ require (
 	github.com/samber/lo v1.38.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/speps/go-hashids/v2 v2.0.1
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	github.com/takt-corp/fx-logrus v1.0.1
-	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.1.21
+	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.2.1
 	github.com/uptrace/uptrace-go/extra/otellogrus v1.1.0
-	go.opentelemetry.io/otel v1.15.1
+	go.opentelemetry.io/otel v1.16.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.15.1
 	go.opentelemetry.io/otel/sdk v1.15.1
-	go.opentelemetry.io/otel/trace v1.15.1
+	go.opentelemetry.io/otel/trace v1.16.0
 	go.uber.org/fx v1.19.2
 	golang.org/x/crypto v0.8.0
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/mail.v2 v2.3.1
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gen v0.3.22
-	gorm.io/gorm v1.25.0
+	gorm.io/gorm v1.25.1
 	gorm.io/plugin/dbresolver v1.4.1
 )
 
@@ -103,9 +103,9 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/uptrace/opentelemetry-go-extra/otelsql v0.1.21 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otelsql v0.2.1 // indirect
 	go.opentelemetry.io/contrib/propagators/b3 v1.15.0 // indirect
-	go.opentelemetry.io/otel/metric v0.37.0 // indirect
+	go.opentelemetry.io/otel/metric v1.16.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/dig v1.16.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
