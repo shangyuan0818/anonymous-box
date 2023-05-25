@@ -75,8 +75,8 @@ github.com/cloudwego/frugal v0.1.6/go.mod h1:9ElktKsh5qd2zDBQ5ENhPSQV7F2dZ/mXlr1
 github.com/cloudwego/hertz v0.2.1/go.mod h1:prTyExvsH/UmDkvfU3dp3EHsZFQISfT8R7BirvpTKdo=
 github.com/cloudwego/hertz v0.3.1/go.mod h1:hnv3B7eZ6kMv7CKFHT2OC4LU0mA4s5XPyu/SbixLcrU=
 github.com/cloudwego/hertz v0.6.0/go.mod h1:83EedHQvCXpveYh2r9us8YlQ1C28vPg93wPdB/QpJiA=
-github.com/cloudwego/hertz v0.6.2 h1:8NM0yHbyv8B4dNYgICirk733S7monTNB+uR9as1It1Y=
-github.com/cloudwego/hertz v0.6.2/go.mod h1:2em2hGREvCBawsTQcQxyWBGVlCeo+N1pp2q0HkkbwR0=
+github.com/cloudwego/hertz v0.6.4 h1:H6FGXZrtjjG/MwgxYi4k8baKZEwDuz0qHgSihoymJ2o=
+github.com/cloudwego/hertz v0.6.4/go.mod h1:KhztQcZtMQ46gOjZcmCy557AKD29cbumGEV0BzwevwA=
 github.com/cloudwego/kitex v0.5.1/go.mod h1:B3oH+MTQ7/wBL3BrCAMlyeyjAqOpi4pRzCvQcXN7RgM=
 github.com/cloudwego/kitex v0.5.2 h1:hsnuXbmbqTFFLAhV2WgbUdN9GMDhQE2sWUX1+ag3or8=
 github.com/cloudwego/kitex v0.5.2/go.mod h1:JpJVDdecl6bU5hlmtxooZgcnAvLXpYTU/A7UDdrTcPk=

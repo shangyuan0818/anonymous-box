@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/cloudwego/fastpb v0.0.4
-	github.com/cloudwego/hertz v0.6.2
+	github.com/cloudwego/hertz v0.6.4
 	github.com/cloudwego/kitex v0.5.2
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/go-playground/validator/v10 v10.13.0
